@@ -1,0 +1,26 @@
+APOLLO HOSPITALS
+Medical Bill Receipt
+
+Invoice No: INV-2024-001234
+Date: 01-Dec-2024
+
+Patient Name: Rajesh Kumar
+Patient ID: PT-45678
+
+BILL DETAILS:
+--------------
+Consultation Fee: Rs 1500
+Lab Tests: Rs 2500
+Medicines: Rs 800
+Room Charges: Rs 3000
+
+Subtotal: Rs 7800
+Discount (10%): Rs 780
+Tax (5%): Rs 351
+
+Total Bill Amount: INR 7371
+Amount Paid: Rs 5000
+Balance Due: Rs 2371
+
+Payment Mode: Cash/Card
+Thank you for choosing Apollo Hospitals
