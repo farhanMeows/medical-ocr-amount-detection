@@ -9,4 +9,3 @@ build/
 !package.json
 !package-lock.json
 !tsconfig.json
-.json
