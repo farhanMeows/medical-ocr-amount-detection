@@ -1,9 +1,22 @@
-const { validateText, validateFile, validateInput } = require('../utils/validateInput');
-const { extractTextFromImage, extractTextFromString } = require('../services/ocrService');
-const { normalizeAmounts, validateNormalizedAmounts } = require('../services/normalizationService');
-const { classifyAmounts, validateClassification } = require('../services/classificationService');
-const logger = require('../utils/logger');
-const { AppError } = require('../middleware/errorHandler');
+const {
+  validateText,
+  validateFile,
+  validateInput,
+} = require("../utils/validateInput");
+const {
+  extractTextFromImage,
+  extractTextFromString,
+} = require("../services/ocrService");
+const {
+  normalizeAmounts,
+  validateNormalizedAmounts,
+} = require("../services/normalizationService");
+const {
+  classifyAmounts,
+  validateClassification,
+} = require("../services/classificationService");
+const logger = require("../utils/logger");
+const { AppError } = require("../middleware/errorHandler");
 
 /**
  * Main controller for OCR extraction and processing pipeline
@@ -16,7 +29,7 @@ const extractAndProcess = async (req, res) => {
     const { text } = req.body;
     const file = req.file;
 
-    logger.info('Received extraction request', {
+    logger.info("Received extraction request", {
       requestId,
       hasText: !!text,
       hasFile: !!file,
@@ -26,17 +39,17 @@ const extractAndProcess = async (req, res) => {
     // Validate that at least one input is provided
     const inputValidation = validateInput(text, file);
     if (!inputValidation.success) {
-      throw new AppError(inputValidation.error, 400, 'invalid_input');
+      throw new AppError(inputValidation.error, 400, "invalid_input");
     }
 
     // STEP 1: OCR / Text Extraction
     let ocrResult;
-    
+
     if (file) {
       // Validate file
       const fileValidation = validateFile(file);
       if (!fileValidation.success) {
-        throw new AppError(fileValidation.error, 400, 'invalid_file');
+        throw new AppError(fileValidation.error, 400, "invalid_file");
       }
 
       // Extract text from image
@@ -45,7 +58,7 @@ const extractAndProcess = async (req, res) => {
       // Validate text
       const textValidation = validateText(text);
       if (!textValidation.success) {
-        throw new AppError(textValidation.error, 400, 'invalid_text');
+        throw new AppError(textValidation.error, 400, "invalid_text");
       }
 
       // Process text directly
@@ -53,29 +66,34 @@ const extractAndProcess = async (req, res) => {
     }
 
     // Check for guardrail conditions
-    if (ocrResult.status === 'no_amounts_found') {
+    if (ocrResult.status === "no_amounts_found") {
       return res.status(200).json({
-        status: 'no_amounts_found',
+        status: "no_amounts_found",
         reason: ocrResult.reason,
       });
     }
 
-    if (ocrResult.status === 'low_confidence') {
+    if (ocrResult.status === "low_confidence") {
       return res.status(200).json({
-        status: 'low_confidence',
+        status: "low_confidence",
         reason: ocrResult.reason,
         confidence: ocrResult.confidence,
       });
     }
 
     // STEP 2: Normalization
-    const normalizationResult = normalizeAmounts(ocrResult.raw_tokens, requestId);
+    const normalizationResult = normalizeAmounts(
+      ocrResult.raw_tokens,
+      requestId
+    );
 
     // Validate normalized amounts
-    const validationResult = validateNormalizedAmounts(normalizationResult.normalized_amounts);
+    const validationResult = validateNormalizedAmounts(
+      normalizationResult.normalized_amounts
+    );
     if (!validationResult.valid) {
       return res.status(200).json({
-        status: 'invalid_amounts',
+        status: "invalid_amounts",
         reason: validationResult.reason,
       });
     }
@@ -88,39 +106,41 @@ const extractAndProcess = async (req, res) => {
     );
 
     // Validate classification consistency
-    const classificationValidation = validateClassification(classificationResult.amounts);
+    const classificationValidation = validateClassification(
+      classificationResult.amounts
+    );
     if (!classificationValidation.valid) {
-      logger.warn('Classification validation warnings', {
+      logger.warn("Classification validation warnings", {
         requestId,
         warnings: classificationValidation.warnings,
       });
     }
 
-    // STEP 4: Final Output
+    // STEP 4: Final Output - Filter only total_bill, paid, and due
+    const allowedTypes = ["total_bill", "paid", "due"];
+    const filteredAmounts = classificationResult.amounts
+      .filter((amount) => allowedTypes.includes(amount.type))
+      .map((amount) => ({
+        type: amount.type,
+        value: amount.value,
+        source: amount.source,
+      }));
+
     const response = {
       currency: ocrResult.currency_hint,
-      amounts: classificationResult.amounts,
-      status: 'ok',
-      metadata: {
-        ocr_confidence: ocrResult.confidence,
-        normalization_confidence: normalizationResult.normalization_confidence,
-        classification_confidence: classificationResult.confidence,
-        ...(classificationValidation.warnings.length > 0 && {
-          warnings: classificationValidation.warnings,
-        }),
-      },
+      amounts: filteredAmounts,
+      status: "ok",
     };
 
-    logger.info('Extraction pipeline completed successfully', {
+    logger.info("Extraction pipeline completed successfully", {
       requestId,
-      amountsExtracted: classificationResult.amounts.length,
-      status: 'ok',
+      amountsExtracted: filteredAmounts.length,
+      status: "ok",
     });
 
     return res.status(200).json(response);
-
   } catch (error) {
-    logger.error('Extraction pipeline failed', {
+    logger.error("Extraction pipeline failed", {
       requestId,
       error: error.message,
       stack: error.stack,
@@ -131,9 +151,9 @@ const extractAndProcess = async (req, res) => {
     }
 
     throw new AppError(
-      'Failed to process the request',
+      "Failed to process the request",
       500,
-      'processing_failed'
+      "processing_failed"
     );
   }
 };
@@ -143,8 +163,8 @@ const extractAndProcess = async (req, res) => {
  */
 const healthCheck = (req, res) => {
   res.status(200).json({
-    status: 'ok',
-    service: 'plum-ocr-backend',
+    status: "ok",
+    service: "plum-ocr-backend",
     timestamp: new Date().toISOString(),
   });
 };
@@ -153,4 +173,3 @@ module.exports = {
   extractAndProcess,
   healthCheck,
 };
-
