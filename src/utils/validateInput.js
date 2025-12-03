@@ -1,19 +1,25 @@
-const { z } = require('zod');
-const config = require('../config/env');
+const { z } = require("zod");
+const config = require("../config/env");
 
 // Schema for text input
 const textInputSchema = z.object({
   text: z
     .string()
-    .min(1, 'Text cannot be empty')
-    .max(config.maxTextLength, `Text exceeds maximum length of ${config.maxTextLength} characters`),
+    .min(1, "Text cannot be empty")
+    .max(
+      config.maxTextLength,
+      `Text exceeds maximum length of ${config.maxTextLength} characters`
+    ),
 });
 
 // Schema for file uploads
 const fileInputSchema = z.object({
-  mimetype: z.enum(['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'], {
-    errorMap: () => ({ message: 'File must be JPEG, PNG, or PDF' }),
-  }),
+  mimetype: z.enum(
+    ["image/jpeg", "image/png", "image/jpg", "application/pdf"],
+    {
+      errorMap: () => ({ message: "File must be JPEG, PNG, or PDF" }),
+    }
+  ),
   size: z
     .number()
     .max(
@@ -38,7 +44,7 @@ const validateText = (text) => {
         error: error.errors[0].message,
       };
     }
-    return { success: false, error: 'Validation failed' };
+    return { success: false, error: "Validation failed" };
   }
 };
 
@@ -49,7 +55,7 @@ const validateText = (text) => {
  */
 const validateFile = (file) => {
   if (!file) {
-    return { success: false, error: 'No file provided' };
+    return { success: false, error: "No file provided" };
   }
 
   try {
@@ -65,7 +71,7 @@ const validateFile = (file) => {
         error: error.errors[0].message,
       };
     }
-    return { success: false, error: 'File validation failed' };
+    return { success: false, error: "File validation failed" };
   }
 };
 
@@ -79,7 +85,7 @@ const validateInput = (text, file) => {
   if (!text && !file) {
     return {
       success: false,
-      error: 'Either text or file must be provided',
+      error: "Either text or file must be provided",
     };
   }
   return { success: true };
@@ -90,4 +96,3 @@ module.exports = {
   validateFile,
   validateInput,
 };
-

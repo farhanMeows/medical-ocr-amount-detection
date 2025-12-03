@@ -1,9 +1,9 @@
-require('dotenv').config();
+require("dotenv").config();
 
 const config = {
   // Server Configuration
   port: process.env.PORT || 3000,
-  nodeEnv: process.env.NODE_ENV || 'development',
+  nodeEnv: process.env.NODE_ENV || "development",
 
   // Rate Limiting
   rateLimitWindowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 60000, // 1 minute
@@ -14,11 +14,10 @@ const config = {
   maxTextLength: parseInt(process.env.MAX_TEXT_LENGTH) || 10000,
 
   // Logging
-  logLevel: process.env.LOG_LEVEL || 'info',
+  logLevel: process.env.LOG_LEVEL || "info",
 
   // OCR Thresholds
   minOcrConfidence: parseFloat(process.env.MIN_OCR_CONFIDENCE) || 0.5,
 };
 
 module.exports = config;
-

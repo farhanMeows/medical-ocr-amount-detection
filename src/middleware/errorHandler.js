@@ -1,4 +1,4 @@
-const logger = require('../utils/logger');
+const logger = require("../utils/logger");
 
 /**
  * Custom error class for application errors
@@ -18,12 +18,12 @@ class AppError extends Error {
  * Global error handling middleware
  */
 const errorHandler = (err, req, res, next) => {
-  const requestId = req.id || 'unknown';
+  const requestId = req.id || "unknown";
 
   // Log error with request context
-  logger.error('Error occurred', {
+  logger.error("Error occurred", {
     requestId,
-    errorCode: err.errorCode || 'internal_error',
+    errorCode: err.errorCode || "internal_error",
     message: err.message,
     stack: err.stack,
     path: req.path,
@@ -32,15 +32,17 @@ const errorHandler = (err, req, res, next) => {
 
   // Default error response
   const statusCode = err.statusCode || 500;
-  const errorCode = err.errorCode || 'internal_error';
-  const message = err.isOperational ? err.message : 'Internal server error occurred';
+  const errorCode = err.errorCode || "internal_error";
+  const message = err.isOperational
+    ? err.message
+    : "Internal server error occurred";
 
   // Send error response
   res.status(statusCode).json({
-    status: 'error',
+    status: "error",
     error_code: errorCode,
     message: message,
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
+    ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
   });
 };
 
@@ -48,7 +50,7 @@ const errorHandler = (err, req, res, next) => {
  * Handle 404 errors
  */
 const notFoundHandler = (req, res, next) => {
-  const error = new AppError('Route not found', 404, 'not_found');
+  const error = new AppError("Route not found", 404, "not_found");
   next(error);
 };
 
@@ -67,4 +69,3 @@ module.exports = {
   notFoundHandler,
   asyncHandler,
 };
-

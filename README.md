@@ -15,6 +15,7 @@ This service implements a complete **OCR → Normalization → Classification** 
 ## ✨ Features
 
 ### Core Functionality
+
 - ✅ Google Cloud Vision OCR integration
 - ✅ Intelligent OCR error correction (l→1, O→0, etc.)
 - ✅ Context-based amount classification
@@ -22,6 +23,7 @@ This service implements a complete **OCR → Normalization → Classification** 
 - ✅ Confidence scoring at each pipeline stage
 
 ### DevSecOps Features
+
 - 🔒 Secure environment variable management
 - 🚦 Rate limiting (30 req/min per IP)
 - 📝 Structured logging with Winston
@@ -34,27 +36,27 @@ This service implements a complete **OCR → Normalization → Classification** 
 \`\`\`
 plum-ocr-backend/
 ├── src/
-│   ├── app.js                    # Express app configuration
-│   ├── server.js                 # Server entry point
-│   ├── config/
-│   │   └── env.js                # Environment configuration
-│   ├── controllers/
-│   │   └── extractController.js  # Main extraction logic
-│   ├── middleware/
-│   │   ├── errorHandler.js       # Error handling
-│   │   └── rateLimiter.js        # Rate limiting
-│   ├── routes/
-│   │   └── extract.js            # API routes
-│   ├── services/
-│   │   ├── ocrService.js         # Google Cloud Vision integration
-│   │   ├── normalizationService.js # OCR error correction
-│   │   └── classificationService.js # Context classification
-│   └── utils/
-│       ├── logger.js             # Winston logger
-│       └── validateInput.js      # Zod schemas
+│ ├── app.js # Express app configuration
+│ ├── server.js # Server entry point
+│ ├── config/
+│ │ └── env.js # Environment configuration
+│ ├── controllers/
+│ │ └── extractController.js # Main extraction logic
+│ ├── middleware/
+│ │ ├── errorHandler.js # Error handling
+│ │ └── rateLimiter.js # Rate limiting
+│ ├── routes/
+│ │ └── extract.js # API routes
+│ ├── services/
+│ │ ├── ocrService.js # Google Cloud Vision integration
+│ │ ├── normalizationService.js # OCR error correction
+│ │ └── classificationService.js # Context classification
+│ └── utils/
+│ ├── logger.js # Winston logger
+│ └── validateInput.js # Zod schemas
 ├── test/
-│   └── sample-bills/             # Sample test files
-├── .env.example                  # Environment template
+│ └── sample-bills/ # Sample test files
+├── .env.example # Environment template
 ├── .gitignore
 ├── package.json
 └── README.md
@@ -84,11 +86,13 @@ npm install
 ### 3. Configure Google Cloud Vision API
 
 #### Step 1: Create a Google Cloud Project
+
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
 2. Create a new project or select existing one
 3. Enable the **Cloud Vision API**
 
 #### Step 2: Create Service Account
+
 1. Navigate to **IAM & Admin** → **Service Accounts**
 2. Click **Create Service Account**
 3. Give it a name (e.g., `plum-ocr-service`)
@@ -96,6 +100,7 @@ npm install
 5. Click **Done**
 
 #### Step 3: Generate Key
+
 1. Click on the created service account
 2. Go to **Keys** tab
 3. Click **Add Key** → **Create new key**
@@ -103,8 +108,11 @@ npm install
 5. Download the key file (e.g., `plum-vision-key.json`)
 
 #### Step 4: Place Key in Project
+
 \`\`\`bash
+
 # Move the key to your project root
+
 mv ~/Downloads/plum-vision-key.json ./google-cloud-key.json
 \`\`\`
 
@@ -123,30 +131,38 @@ PORT=3000
 NODE_ENV=development
 
 # Google Cloud Vision API - Update with your key path
+
 GOOGLE_APPLICATION_CREDENTIALS=./google-cloud-key.json
 
 # Rate Limiting
+
 RATE_LIMIT_WINDOW_MS=60000
 RATE_LIMIT_MAX_REQUESTS=30
 
 # File Upload Limits
+
 MAX_FILE_SIZE_MB=5
 MAX_TEXT_LENGTH=10000
 
 # Logging
+
 LOG_LEVEL=info
 
 # OCR Threshold
+
 MIN_OCR_CONFIDENCE=0.5
 \`\`\`
 
 ### 5. Start the Server
 
 \`\`\`bash
+
 # Development mode (with auto-reload)
+
 npm run dev
 
 # Production mode
+
 npm start
 \`\`\`
 
@@ -155,6 +171,7 @@ The server will start on \`http://localhost:3000\`
 ## 📡 API Documentation
 
 ### Base URL
+
 \`\`\`
 http://localhost:3000
 \`\`\`
@@ -173,50 +190,50 @@ Processes text or image input through the full OCR pipeline.
 
 \`\`\`bash
 curl -X POST http://localhost:3000/api/extract \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "text": "Total: INR 1200 | Paid: 1000 | Due: 200 | Discount: 10%"
-  }'
+-H "Content-Type: application/json" \\
+-d '{
+"text": "Total: INR 1200 | Paid: 1000 | Due: 200 | Discount: 10%"
+}'
 \`\`\`
 
 **Option B: Image Upload**
 
 \`\`\`bash
 curl -X POST http://localhost:3000/api/extract \\
-  -F "file=@/path/to/medical-bill.jpg"
+-F "file=@/path/to/medical-bill.jpg"
 \`\`\`
 
 ##### Success Response (200 OK)
 
 \`\`\`json
 {
-  "currency": "INR",
-  "amounts": [
-    {
-      "type": "total_bill",
-      "value": 1200,
-      "source": "text: 'Total: INR 1200'",
-      "confidence": 0.9
-    },
-    {
-      "type": "paid",
-      "value": 1000,
-      "source": "text: 'Paid: 1000'",
-      "confidence": 0.9
-    },
-    {
-      "type": "due",
-      "value": 200,
-      "source": "text: 'Due: 200'",
-      "confidence": 0.9
-    }
-  ],
-  "status": "ok",
-  "metadata": {
-    "ocr_confidence": 1,
-    "normalization_confidence": 1,
-    "classification_confidence": 0.9
-  }
+"currency": "INR",
+"amounts": [
+{
+"type": "total_bill",
+"value": 1200,
+"source": "text: 'Total: INR 1200'",
+"confidence": 0.9
+},
+{
+"type": "paid",
+"value": 1000,
+"source": "text: 'Paid: 1000'",
+"confidence": 0.9
+},
+{
+"type": "due",
+"value": 200,
+"source": "text: 'Due: 200'",
+"confidence": 0.9
+}
+],
+"status": "ok",
+"metadata": {
+"ocr_confidence": 1,
+"normalization_confidence": 1,
+"classification_confidence": 0.9
+}
 }
 \`\`\`
 
@@ -225,17 +242,17 @@ curl -X POST http://localhost:3000/api/extract \\
 **No Amounts Found**
 \`\`\`json
 {
-  "status": "no_amounts_found",
-  "reason": "No numeric values detected in the document"
+"status": "no_amounts_found",
+"reason": "No numeric values detected in the document"
 }
 \`\`\`
 
 **Low Confidence**
 \`\`\`json
 {
-  "status": "low_confidence",
-  "reason": "Document quality too poor or text too noisy",
-  "confidence": 0.42
+"status": "low_confidence",
+"reason": "Document quality too poor or text too noisy",
+"confidence": 0.42
 }
 \`\`\`
 
@@ -243,9 +260,9 @@ curl -X POST http://localhost:3000/api/extract \\
 
 \`\`\`json
 {
-  "status": "error",
-  "error_code": "invalid_file",
-  "message": "File must be JPEG, PNG, or PDF"
+"status": "error",
+"error_code": "invalid_file",
+"message": "File must be JPEG, PNG, or PDF"
 }
 \`\`\`
 
@@ -260,8 +277,8 @@ curl http://localhost:3000/health
 Response:
 \`\`\`json
 {
-  "status": "ok",
-  "timestamp": "2024-12-02T10:30:00.000Z"
+"status": "ok",
+"timestamp": "2024-12-02T10:30:00.000Z"
 }
 \`\`\`
 
@@ -271,27 +288,27 @@ Response:
 
 \`\`\`bash
 curl -X POST http://localhost:3000/api/extract \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "text": "APOLLO HOSPITALS\\nTotal Bill: Rs 7371\\nAmount Paid: Rs 5000\\nBalance Due: Rs 2371"
-  }'
+-H "Content-Type: application/json" \\
+-d '{
+"text": "APOLLO HOSPITALS\\nTotal Bill: Rs 7371\\nAmount Paid: Rs 5000\\nBalance Due: Rs 2371"
+}'
 \`\`\`
 
 ### Example 2: Complex Medical Bill
 
 \`\`\`bash
 curl -X POST http://localhost:3000/api/extract \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "text": "Consultation Fee: Rs 1500\\nLab Tests: Rs 2500\\nMedicines: Rs 800\\nSubtotal: Rs 4800\\nDiscount (10%): Rs 480\\nTotal: INR 4320"
-  }'
+-H "Content-Type: application/json" \\
+-d '{
+"text": "Consultation Fee: Rs 1500\\nLab Tests: Rs 2500\\nMedicines: Rs 800\\nSubtotal: Rs 4800\\nDiscount (10%): Rs 480\\nTotal: INR 4320"
+}'
 \`\`\`
 
 ### Example 3: Image Upload
 
 \`\`\`bash
 curl -X POST http://localhost:3000/api/extract \\
-  -F "file=@./test/sample-bills/sample-bill-1.txt"
+-F "file=@./test/sample-bills/sample-bill-1.txt"
 \`\`\`
 
 ### Example 4: Using Sample Bill
@@ -300,8 +317,8 @@ The project includes a sample bill in \`test/sample-bills/sample-bill-1.txt\`:
 
 \`\`\`bash
 curl -X POST http://localhost:3000/api/extract \\
-  -H "Content-Type: application/json" \\
-  -d @test/sample-bills/sample-bill-1.txt
+-H "Content-Type: application/json" \\
+-d @test/sample-bills/sample-bill-1.txt
 \`\`\`
 
 ## 🏗️ Architecture
@@ -310,62 +327,66 @@ curl -X POST http://localhost:3000/api/extract \\
 
 \`\`\`
 Input (Text/Image)
-       ↓
+↓
 ┌──────────────────┐
-│  Step 1: OCR     │ → Google Cloud Vision (if image)
-│                  │ → Extract raw tokens
+│ Step 1: OCR │ → Google Cloud Vision (if image)
+│ │ → Extract raw tokens
 └──────────────────┘
-       ↓
+↓
 ┌──────────────────┐
 │ Step 2: Normalize│ → Fix OCR errors (l→1, O→0)
-│                  │ → Parse amounts
+│ │ → Parse amounts
 └──────────────────┘
-       ↓
+↓
 ┌──────────────────┐
 │ Step 3: Classify │ → Context matching
-│                  │ → Type detection
+│ │ → Type detection
 └──────────────────┘
-       ↓
+↓
 ┌──────────────────┐
-│ Step 4: Output   │ → Structured JSON
-│                  │ → With provenance
+│ Step 4: Output │ → Structured JSON
+│ │ → With provenance
 └──────────────────┘
 \`\`\`
 
 ### Amount Types Detected
 
-| Type | Examples |
-|------|----------|
-| \`total_bill\` | "Total Amount", "Bill Amount", "Grand Total" |
-| \`paid\` | "Amount Paid", "Payment", "Received" |
-| \`due\` | "Balance Due", "Outstanding", "Pending" |
-| \`discount\` | "Discount", "Concession", "Rebate" |
-| \`tax\` | "GST", "VAT", "Service Tax" |
-| \`consultation_fee\` | "Consultation Fee", "Doctor Charges" |
-| \`medicine_cost\` | "Medicines", "Pharmacy" |
-| \`lab_test_cost\` | "Lab Tests", "Investigations" |
-| \`room_charges\` | "Room Charges", "Accommodation" |
-| \`subtotal\` | "Sub Total", "Subtotal" |
-| \`other\` | Amounts without clear context |
+| Type                 | Examples                                     |
+| -------------------- | -------------------------------------------- |
+| \`total_bill\`       | "Total Amount", "Bill Amount", "Grand Total" |
+| \`paid\`             | "Amount Paid", "Payment", "Received"         |
+| \`due\`              | "Balance Due", "Outstanding", "Pending"      |
+| \`discount\`         | "Discount", "Concession", "Rebate"           |
+| \`tax\`              | "GST", "VAT", "Service Tax"                  |
+| \`consultation_fee\` | "Consultation Fee", "Doctor Charges"         |
+| \`medicine_cost\`    | "Medicines", "Pharmacy"                      |
+| \`lab_test_cost\`    | "Lab Tests", "Investigations"                |
+| \`room_charges\`     | "Room Charges", "Accommodation"              |
+| \`subtotal\`         | "Sub Total", "Subtotal"                      |
+| \`other\`            | Amounts without clear context                |
 
 ## 🔒 Security Features
 
 ### Rate Limiting
+
 - **General API**: 30 requests/minute per IP
 - **Upload Endpoint**: 10 requests/minute per IP
 - Returns 429 status when exceeded
 
 ### Input Validation
+
 - Text: Max 10,000 characters
 - Files: Max 5MB, only JPEG/PNG/PDF
 - Strict type checking with Zod
 
 ### Secure Configuration
+
 - Environment variables for all secrets
 - No credentials in code
 - \`.gitignore\` protects sensitive JSON files
 
 ### Logging
+
 - Request IDs for tracing
 - No sensitive data logged
 - Structured JSON logs
@@ -373,17 +394,17 @@ Input (Text/Image)
 
 ## 🐛 Error Codes
 
-| Code | Meaning |
-|------|---------|
-| \`invalid_input\` | Neither text nor file provided |
-| \`invalid_text\` | Text validation failed |
-| \`invalid_file\` | File type/size validation failed |
-| \`ocr_not_configured\` | Google Cloud credentials missing |
-| \`no_text_detected\` | OCR found no text in image |
-| \`ocr_failed\` | OCR service error |
-| \`rate_limit_exceeded\` | Too many requests |
-| \`not_found\` | Route not found |
-| \`internal_error\` | Unexpected server error |
+| Code                    | Meaning                          |
+| ----------------------- | -------------------------------- |
+| \`invalid_input\`       | Neither text nor file provided   |
+| \`invalid_text\`        | Text validation failed           |
+| \`invalid_file\`        | File type/size validation failed |
+| \`ocr_not_configured\`  | Google Cloud credentials missing |
+| \`no_text_detected\`    | OCR found no text in image       |
+| \`ocr_failed\`          | OCR service error                |
+| \`rate_limit_exceeded\` | Too many requests                |
+| \`not_found\`           | Route not found                  |
+| \`internal_error\`      | Unexpected server error          |
 
 ## 📝 Postman Collection
 
@@ -392,16 +413,18 @@ You can test the API using this Postman collection structure:
 ### Collection: Plum OCR API
 
 #### 1. Extract from Text
+
 - **Method**: POST
 - **URL**: \`http://localhost:3000/api/extract\`
 - **Body** (raw JSON):
-\`\`\`json
-{
+  \`\`\`json
+  {
   "text": "Total: INR 1200 | Paid: 1000 | Due: 200"
-}
-\`\`\`
+  }
+  \`\`\`
 
 #### 2. Extract from Image
+
 - **Method**: POST
 - **URL**: \`http://localhost:3000/api/extract\`
 - **Body** (form-data):
@@ -410,6 +433,7 @@ You can test the API using this Postman collection structure:
   - Value: Select your image file
 
 #### 3. Health Check
+
 - **Method**: GET
 - **URL**: \`http://localhost:3000/health\`
 
@@ -418,13 +442,17 @@ You can test the API using this Postman collection structure:
 ### Available Scripts
 
 \`\`\`bash
+
 # Start development server with auto-reload
+
 npm run dev
 
 # Start production server
+
 npm start
 
 # Install dependencies
+
 npm install
 \`\`\`
 
@@ -434,11 +462,11 @@ To add new classification types, edit \`src/services/classificationService.js\`:
 
 \`\`\`javascript
 {
-  type: 'your_new_type',
-  patterns: [
-    /your\s*pattern[:\s]*(?:rs\.?|inr|₹)?\s*(\d+)/i,
-  ],
-  confidence: 0.8,
+type: 'your_new_type',
+patterns: [
+/your\s*pattern[:\s]*(?:rs\.?|inr|₹)?\s\*(\d+)/i,
+],
+confidence: 0.8,
 }
 \`\`\`
 

@@ -1,4 +1,4 @@
-const logger = require('../utils/logger');
+const logger = require("../utils/logger");
 
 /**
  * Classify amounts based on surrounding text context
@@ -9,7 +9,7 @@ const logger = require('../utils/logger');
  */
 const classifyAmounts = (rawText, normalizedAmounts, requestId) => {
   try {
-    logger.info('Starting amount classification', {
+    logger.info("Starting amount classification", {
       requestId,
       amountCount: normalizedAmounts.length,
     });
@@ -26,12 +26,16 @@ const classifyAmounts = (rawText, normalizedAmounts, requestId) => {
     }
 
     // Calculate overall confidence
-    const totalConfidence = classifiedAmounts.reduce((sum, item) => sum + (item.confidence || 0.5), 0);
-    const avgConfidence = classifiedAmounts.length > 0 
-      ? totalConfidence / classifiedAmounts.length 
-      : 0.5;
+    const totalConfidence = classifiedAmounts.reduce(
+      (sum, item) => sum + (item.confidence || 0.5),
+      0
+    );
+    const avgConfidence =
+      classifiedAmounts.length > 0
+        ? totalConfidence / classifiedAmounts.length
+        : 0.5;
 
-    logger.info('Classification complete', {
+    logger.info("Classification complete", {
       requestId,
       classified: classifiedAmounts.length,
       avgConfidence,
@@ -42,7 +46,7 @@ const classifyAmounts = (rawText, normalizedAmounts, requestId) => {
       confidence: parseFloat(avgConfidence.toFixed(2)),
     };
   } catch (error) {
-    logger.error('Classification failed', {
+    logger.error("Classification failed", {
       requestId,
       error: error.message,
     });
@@ -61,8 +65,8 @@ const classifyAmounts = (rawText, normalizedAmounts, requestId) => {
 const classifyAmount = (amount, lowerText, lines, originalText) => {
   // Find the line containing this amount
   const amountStr = amount.toString();
-  let sourceLine = '';
-  
+  let sourceLine = "";
+
   for (const line of lines) {
     if (line.includes(amountStr)) {
       sourceLine = line.trim();
@@ -74,7 +78,7 @@ const classifyAmount = (amount, lowerText, lines, originalText) => {
   const patterns = [
     // Total Bill patterns
     {
-      type: 'total_bill',
+      type: "total_bill",
       patterns: [
         /total\s*(?:bill|amount|charges?|cost)?[:\s]*(?:rs\.?|inr|₹)?\s*(\d+)/i,
         /(?:grand|net)?\s*total[:\s]*(?:rs\.?|inr|₹)?\s*(\d+)/i,
@@ -85,7 +89,7 @@ const classifyAmount = (amount, lowerText, lines, originalText) => {
     },
     // Paid amount patterns
     {
-      type: 'paid',
+      type: "paid",
       patterns: [
         /(?:amount\s*)?paid[:\s]*(?:rs\.?|inr|₹)?\s*(\d+)/i,
         /payment[:\s]*(?:rs\.?|inr|₹)?\s*(\d+)/i,
@@ -95,7 +99,7 @@ const classifyAmount = (amount, lowerText, lines, originalText) => {
     },
     // Due/Balance patterns
     {
-      type: 'due',
+      type: "due",
       patterns: [
         /(?:balance\s*)?due[:\s]*(?:rs\.?|inr|₹)?\s*(\d+)/i,
         /(?:amount\s*)?outstanding[:\s]*(?:rs\.?|inr|₹)?\s*(\d+)/i,
@@ -106,7 +110,7 @@ const classifyAmount = (amount, lowerText, lines, originalText) => {
     },
     // Discount patterns
     {
-      type: 'discount',
+      type: "discount",
       patterns: [
         /discount[:\s]*(?:rs\.?|inr|₹)?\s*(\d+)/i,
         /concession[:\s]*(?:rs\.?|inr|₹)?\s*(\d+)/i,
@@ -116,7 +120,7 @@ const classifyAmount = (amount, lowerText, lines, originalText) => {
     },
     // Tax patterns
     {
-      type: 'tax',
+      type: "tax",
       patterns: [
         /(?:gst|vat|tax)[:\s]*(?:rs\.?|inr|₹)?\s*(\d+)/i,
         /service\s*tax[:\s]*(?:rs\.?|inr|₹)?\s*(\d+)/i,
@@ -125,7 +129,7 @@ const classifyAmount = (amount, lowerText, lines, originalText) => {
     },
     // Consultation Fee
     {
-      type: 'consultation_fee',
+      type: "consultation_fee",
       patterns: [
         /consultation\s*(?:fee|charges?)[:\s]*(?:rs\.?|inr|₹)?\s*(\d+)/i,
         /doctor\s*(?:fee|charges?)[:\s]*(?:rs\.?|inr|₹)?\s*(\d+)/i,
@@ -134,7 +138,7 @@ const classifyAmount = (amount, lowerText, lines, originalText) => {
     },
     // Medicine costs
     {
-      type: 'medicine_cost',
+      type: "medicine_cost",
       patterns: [
         /medicine[s]?\s*(?:cost|charges?)?[:\s]*(?:rs\.?|inr|₹)?\s*(\d+)/i,
         /pharmacy[:\s]*(?:rs\.?|inr|₹)?\s*(\d+)/i,
@@ -144,7 +148,7 @@ const classifyAmount = (amount, lowerText, lines, originalText) => {
     },
     // Lab tests
     {
-      type: 'lab_test_cost',
+      type: "lab_test_cost",
       patterns: [
         /lab\s*(?:test[s]?|charges?)[:\s]*(?:rs\.?|inr|₹)?\s*(\d+)/i,
         /investigation[s]?[:\s]*(?:rs\.?|inr|₹)?\s*(\d+)/i,
@@ -154,7 +158,7 @@ const classifyAmount = (amount, lowerText, lines, originalText) => {
     },
     // Room charges
     {
-      type: 'room_charges',
+      type: "room_charges",
       patterns: [
         /room\s*(?:charges?|rent)[:\s]*(?:rs\.?|inr|₹)?\s*(\d+)/i,
         /bed\s*charges?[:\s]*(?:rs\.?|inr|₹)?\s*(\d+)/i,
@@ -164,7 +168,7 @@ const classifyAmount = (amount, lowerText, lines, originalText) => {
     },
     // Subtotal
     {
-      type: 'subtotal',
+      type: "subtotal",
       patterns: [
         /sub\s*total[:\s]*(?:rs\.?|inr|₹)?\s*(\d+)/i,
         /sub[-\s]*total[:\s]*(?:rs\.?|inr|₹)?\s*(\d+)/i,
@@ -180,7 +184,11 @@ const classifyAmount = (amount, lowerText, lines, originalText) => {
   for (const category of patterns) {
     for (const pattern of category.patterns) {
       const match = sourceLine.match(pattern) || lowerText.match(pattern);
-      if (match && match[1] && parseFloat(match[1].replace(/,/g, '')) === amount) {
+      if (
+        match &&
+        match[1] &&
+        parseFloat(match[1].replace(/,/g, "")) === amount
+      ) {
         if (category.confidence > highestConfidence) {
           highestConfidence = category.confidence;
           bestMatch = {
@@ -197,9 +205,11 @@ const classifyAmount = (amount, lowerText, lines, originalText) => {
   // If no pattern matched, classify as "other"
   if (!bestMatch) {
     bestMatch = {
-      type: 'other',
+      type: "other",
       value: amount,
-      source: sourceLine ? `text: '${sourceLine}'` : 'text: (context not found)',
+      source: sourceLine
+        ? `text: '${sourceLine}'`
+        : "text: (context not found)",
       confidence: 0.5,
     };
   }
@@ -217,17 +227,18 @@ const validateClassification = (classifiedAmounts) => {
   const warnings = [];
 
   // Find key amounts
-  const total = classifiedAmounts.find(a => a.type === 'total_bill');
-  const paid = classifiedAmounts.find(a => a.type === 'paid');
-  const due = classifiedAmounts.find(a => a.type === 'due');
-  const subtotal = classifiedAmounts.find(a => a.type === 'subtotal');
+  const total = classifiedAmounts.find((a) => a.type === "total_bill");
+  const paid = classifiedAmounts.find((a) => a.type === "paid");
+  const due = classifiedAmounts.find((a) => a.type === "due");
+  const subtotal = classifiedAmounts.find((a) => a.type === "subtotal");
 
   // Validate: Total = Paid + Due (with some tolerance for rounding)
   if (total && paid && due) {
     const calculatedTotal = paid.value + due.value;
     const difference = Math.abs(total.value - calculatedTotal);
-    
-    if (difference > 1) { // Allow 1 rupee tolerance for rounding
+
+    if (difference > 1) {
+      // Allow 1 rupee tolerance for rounding
       warnings.push(
         `Total (${total.value}) doesn't match Paid (${paid.value}) + Due (${due.value})`
       );
@@ -236,12 +247,16 @@ const validateClassification = (classifiedAmounts) => {
 
   // Validate: Due should be less than or equal to Total
   if (total && due && due.value > total.value) {
-    warnings.push('Due amount is greater than total - possible classification error');
+    warnings.push(
+      "Due amount is greater than total - possible classification error"
+    );
   }
 
   // Validate: Paid should be less than or equal to Total
   if (total && paid && paid.value > total.value) {
-    warnings.push('Paid amount is greater than total - possible classification error');
+    warnings.push(
+      "Paid amount is greater than total - possible classification error"
+    );
   }
 
   return {
@@ -254,4 +269,3 @@ module.exports = {
   classifyAmounts,
   validateClassification,
 };
-

@@ -1,6 +1,6 @@
-const app = require('./app');
-const config = require('./config/env');
-const logger = require('./utils/logger');
+const app = require("./app");
+const config = require("./config/env");
+const logger = require("./utils/logger");
 
 const PORT = config.port;
 
@@ -19,25 +19,25 @@ const server = app.listen(PORT, () => {
 // Graceful shutdown
 const gracefulShutdown = (signal) => {
   logger.info(`${signal} received. Starting graceful shutdown...`);
-  
+
   server.close(() => {
-    logger.info('Server closed. Process terminating...');
+    logger.info("Server closed. Process terminating...");
     process.exit(0);
   });
 
   // Force shutdown after 10 seconds
   setTimeout(() => {
-    logger.error('Forced shutdown after timeout');
+    logger.error("Forced shutdown after timeout");
     process.exit(1);
   }, 10000);
 };
 
-process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+process.on("SIGINT", () => gracefulShutdown("SIGINT"));
 
 // Handle uncaught exceptions
-process.on('uncaughtException', (error) => {
-  logger.error('Uncaught Exception', {
+process.on("uncaughtException", (error) => {
+  logger.error("Uncaught Exception", {
     error: error.message,
     stack: error.stack,
   });
@@ -45,8 +45,8 @@ process.on('uncaughtException', (error) => {
 });
 
 // Handle unhandled promise rejections
-process.on('unhandledRejection', (reason, promise) => {
-  logger.error('Unhandled Rejection', {
+process.on("unhandledRejection", (reason, promise) => {
+  logger.error("Unhandled Rejection", {
     reason: reason,
     promise: promise,
   });
@@ -54,4 +54,3 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 module.exports = server;
-

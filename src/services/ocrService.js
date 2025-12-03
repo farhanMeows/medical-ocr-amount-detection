@@ -1,7 +1,7 @@
-const Tesseract = require('tesseract.js');
-const config = require('../config/env');
-const logger = require('../utils/logger');
-const { AppError } = require('../middleware/errorHandler');
+const Tesseract = require("tesseract.js");
+const config = require("../config/env");
+const logger = require("../utils/logger");
+const { AppError } = require("../middleware/errorHandler");
 
 /**
  * Extract text from image using Tesseract OCR
@@ -11,18 +11,18 @@ const { AppError } = require('../middleware/errorHandler');
  */
 const extractTextFromImage = async (imageBuffer, requestId) => {
   try {
-    logger.info('Starting OCR text extraction with Tesseract', { requestId });
+    logger.info("Starting OCR text extraction with Tesseract", { requestId });
 
     // Perform OCR using Tesseract
     const result = await Tesseract.recognize(
       imageBuffer,
-      'eng', // Language: English
+      "eng", // Language: English
       {
         logger: (m) => {
-          if (m.status === 'recognizing text') {
-            logger.debug('Tesseract progress', {
+          if (m.status === "recognizing text") {
+            logger.debug("Tesseract progress", {
               requestId,
-              progress: Math.round(m.progress * 100) + '%',
+              progress: Math.round(m.progress * 100) + "%",
             });
           }
         },
@@ -33,11 +33,11 @@ const extractTextFromImage = async (imageBuffer, requestId) => {
     const confidence = result.data.confidence / 100; // Convert to 0-1 scale
 
     if (!fullText || fullText.trim().length === 0) {
-      logger.warn('No text detected in image', { requestId });
+      logger.warn("No text detected in image", { requestId });
       throw new AppError(
-        'No text detected in the provided image',
+        "No text detected in the provided image",
         400,
-        'no_text_detected'
+        "no_text_detected"
       );
     }
 
@@ -49,30 +49,30 @@ const extractTextFromImage = async (imageBuffer, requestId) => {
 
     // Check if we found any amounts
     if (numericTokens.length === 0) {
-      logger.warn('No numeric amounts found in OCR text', { requestId });
+      logger.warn("No numeric amounts found in OCR text", { requestId });
       return {
-        status: 'no_amounts_found',
-        reason: 'No numeric values detected in the document',
+        status: "no_amounts_found",
+        reason: "No numeric values detected in the document",
         raw_text: fullText,
       };
     }
 
     // Check if confidence is too low
     if (confidence < config.minOcrConfidence) {
-      logger.warn('OCR confidence below threshold', {
+      logger.warn("OCR confidence below threshold", {
         requestId,
         confidence: confidence,
         threshold: config.minOcrConfidence,
       });
       return {
-        status: 'low_confidence',
-        reason: 'Document quality too poor or text too noisy',
+        status: "low_confidence",
+        reason: "Document quality too poor or text too noisy",
         confidence: parseFloat(confidence.toFixed(2)),
         raw_text: fullText,
       };
     }
 
-    logger.info('OCR extraction successful', {
+    logger.info("OCR extraction successful", {
       requestId,
       tokensFound: numericTokens.length,
       confidence: confidence,
@@ -88,16 +88,16 @@ const extractTextFromImage = async (imageBuffer, requestId) => {
     if (error instanceof AppError) {
       throw error;
     }
-    logger.error('OCR extraction failed', {
+    logger.error("OCR extraction failed", {
       requestId,
       error: error.message,
       stack: error.stack,
     });
-    
+
     throw new AppError(
-      'Failed to extract text from image. Please ensure the image is clear and readable.',
+      "Failed to extract text from image. Please ensure the image is clear and readable.",
       500,
-      'ocr_failed'
+      "ocr_failed"
     );
   }
 };
@@ -110,7 +110,7 @@ const extractTextFromImage = async (imageBuffer, requestId) => {
  */
 const extractTextFromString = async (text, requestId) => {
   try {
-    logger.info('Processing text input', { requestId });
+    logger.info("Processing text input", { requestId });
 
     // Extract numeric tokens
     const numericTokens = extractNumericTokens(text);
@@ -119,14 +119,14 @@ const extractTextFromString = async (text, requestId) => {
     const currencyHint = detectCurrency(text);
 
     if (numericTokens.length === 0) {
-      logger.warn('No numeric amounts found in text', { requestId });
+      logger.warn("No numeric amounts found in text", { requestId });
       return {
-        status: 'no_amounts_found',
-        reason: 'No numeric values found in the provided text',
+        status: "no_amounts_found",
+        reason: "No numeric values found in the provided text",
       };
     }
 
-    logger.info('Text extraction successful', {
+    logger.info("Text extraction successful", {
       requestId,
       tokensFound: numericTokens.length,
     });
@@ -138,14 +138,14 @@ const extractTextFromString = async (text, requestId) => {
       raw_text: text,
     };
   } catch (error) {
-    logger.error('Text extraction failed', {
+    logger.error("Text extraction failed", {
       requestId,
       error: error.message,
     });
     throw new AppError(
-      'Failed to extract amounts from text',
+      "Failed to extract amounts from text",
       500,
-      'text_extraction_failed'
+      "text_extraction_failed"
     );
   }
 };
@@ -158,29 +158,29 @@ const extractTextFromString = async (text, requestId) => {
  */
 const extractNumericTokens = (text) => {
   const tokens = [];
-  
+
   // Pattern to match:
   // - Numbers with optional decimals: 1200, 1200.50
   // - Numbers with commas: 1,200 or 1,200.50
   // - Percentages: 10%, 10.5%
   // - Currency symbols followed by numbers: Rs 1200, INR 1200, ₹1200
   const patterns = [
-    /\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?%/g,  // Percentages with commas: 1,200.50%
-    /\d+(?:\.\d{1,2})?%/g,                   // Simple percentages: 10%, 10.5%
+    /\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?%/g, // Percentages with commas: 1,200.50%
+    /\d+(?:\.\d{1,2})?%/g, // Simple percentages: 10%, 10.5%
     /(?:Rs\.?|INR|₹)\s*\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?/gi, // Currency with commas
     /(?:Rs\.?|INR|₹)\s*\d+(?:\.\d{1,2})?/gi, // Simple currency
-    /\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?/g,    // Numbers with commas: 1,200.50
-    /\d+(?:\.\d{1,2})?/g,                    // Simple numbers: 1200, 1200.50
+    /\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?/g, // Numbers with commas: 1,200.50
+    /\d+(?:\.\d{1,2})?/g, // Simple numbers: 1200, 1200.50
   ];
 
   const seen = new Set();
-  
-  patterns.forEach(pattern => {
+
+  patterns.forEach((pattern) => {
     const matches = text.match(pattern);
     if (matches) {
-      matches.forEach(match => {
+      matches.forEach((match) => {
         // Clean up the token (remove currency symbols for storage)
-        const cleaned = match.replace(/(?:Rs\.?|INR|₹)\s*/gi, '').trim();
+        const cleaned = match.replace(/(?:Rs\.?|INR|₹)\s*/gi, "").trim();
         if (cleaned && !seen.has(cleaned)) {
           tokens.push(cleaned);
           seen.add(cleaned);
@@ -211,11 +211,10 @@ const detectCurrency = (text) => {
     }
   }
 
-  return 'INR'; // Default to INR for Indian medical bills
+  return "INR"; // Default to INR for Indian medical bills
 };
 
 module.exports = {
   extractTextFromImage,
   extractTextFromString,
 };
-
