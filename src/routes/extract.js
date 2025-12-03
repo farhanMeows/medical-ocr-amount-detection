@@ -96,4 +96,6 @@ router.post(
  * GET /api/extract/health
  * Health check endpoint
  */
-router.get("/health", healthCheck);module.exports = router;
+router.get("/health", healthCheck);
+
+module.exports = router;
