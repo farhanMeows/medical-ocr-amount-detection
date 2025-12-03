@@ -8,24 +8,30 @@
     "dev": "nodemon src/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["ocr", "medical-bills", "google-cloud-vision", "express", "backend"],
+  "keywords": [
+    "ocr",
+    "medical-bills",
+    "google-cloud-vision",
+    "express",
+    "backend"
+  ],
   "author": "Plum Internship Candidate",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "@google-cloud/vision": "^4.3.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "express-rate-limit": "^7.1.5",
-    "zod": "^3.22.4",
-    "winston": "^3.11.0",
     "multer": "^1.4.5-lts.1",
-    "dotenv": "^16.3.1",
-    "cors": "^2.8.5"
+    "tesseract.js": "^6.0.1",
+    "winston": "^3.11.0",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
+    "nodemon": "^3.0.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3",
-    "nodemon": "^3.0.2"
+    "typescript": "^5.9.3"
   }
 }
