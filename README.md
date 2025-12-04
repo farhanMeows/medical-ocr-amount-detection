@@ -2,12 +2,14 @@
 
 backend service for extracting amounts from medical bills. supports text and image inputs with ocr processing.
 
+**🚀 live demo:** https://plum-ocr-backend.onrender.com
+
 ## overview
 
 implements a 4-step pipeline: **ocr → normalization → classification → output**
 
 - accepts medical bills as text or images (jpeg/png/pdf)
-- uses tesseract.js for ocr (free, no api keys required)
+- uses tesseract.js for ocr
 - fixes common ocr errors (l→1, O→0, I→1, S→5, B→8)
 - classifies amounts using context keywords (total, paid, due)
 - returns structured json with source provenance
@@ -106,7 +108,8 @@ RATE_LIMIT_MAX_REQUESTS=30
 
 ### base url
 ```
-http://localhost:3000
+local: http://localhost:3000
+production: https://plum-ocr-backend.onrender.com
 ```
 
 ### endpoints
