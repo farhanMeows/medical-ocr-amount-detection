@@ -124,24 +124,19 @@ production: https://plum-ocr-backend.onrender.com
 
 ### endpoints
 
-#### 1. full pipeline (main endpoint)
+#### ocr extract - image upload
 
 **POST** `/api/extract`
 
-runs all 4 steps in one request.
+upload medical bill image for ocr processing and amount extraction. runs full 4-step pipeline.
 
-**text input:**
+**supported formats:** jpeg, png, pdf  
+**max file size:** 5mb
 
-```bash
-curl -X POST http://localhost:3000/api/extract \
-  -H "Content-Type: application/json" \
-  -d '{"text": "Total: INR 1200 | Paid: 1000 | Due: 200"}'
-```
-
-**image input:**
+**request:**
 
 ```bash
-curl -X POST http://localhost:3000/api/extract \
+curl -X POST https://plum-ocr-backend.onrender.com/api/extract \
   -F "file=@./test/sample-bills/images/test.png"
 ```
 
@@ -153,18 +148,13 @@ curl -X POST http://localhost:3000/api/extract \
   "amounts": [
     {
       "type": "total_bill",
-      "value": 1200,
-      "source": "text: 'Total: INR 1200'"
+      "value": 214,
+      "source": "text: 'total amount: 214.00'"
     },
     {
       "type": "paid",
-      "value": 1000,
-      "source": "text: 'Paid: 1000'"
-    },
-    {
-      "type": "due",
       "value": 200,
-      "source": "text: 'Due: 200'"
+      "source": "text: 'paid amount: 200.00'"
     }
   ],
   "status": "ok"
@@ -177,27 +167,26 @@ curl -X POST http://localhost:3000/api/extract \
 // no amounts found
 {"status": "no_amounts_found", "reason": "No numeric values detected"}
 
-// invalid input
+// invalid file type
 {"status": "error", "error_code": "invalid_file", "message": "File must be JPEG, PNG, or PDF"}
+
+// file too large
+{"status": "error", "error_code": "file_too_large", "message": "File size exceeds 5MB limit"}
 ```
 
-#### 2. step-by-step endpoints
+#### health check
 
-use these to test individual pipeline stages:
-
-**step 1: ocr/text extraction**
+**GET** `/health`
 
 ```bash
-POST /api/extract/step1
-Body: {"text": "..."} or file upload
-Response: {"raw_tokens": [...], "currency_hint": "INR", "confidence": 0.85}
+curl https://plum-ocr-backend.onrender.com/health
 ```
 
-**step 2: normalization**
+response: `{"status": "ok", "timestamp": "..."}`
 
-```bash
-POST /api/extract/step2
-Body: {"raw_tokens": ["l200", "1000", "200"]}
+---
+
+## pipeline architecture
 Response: {"normalized_amounts": [1200, 1000, 200], "normalization_confidence": 1.0}
 ```
 
@@ -214,28 +203,13 @@ Response: {"amounts": [{"type": "total_bill", "value": 1200}, ...], "confidence"
 ```bash
 POST /api/extract/step4
 Body: {"currency_hint": "INR", "amounts": [...], "raw_text": "..."}
-Response: {"currency": "INR", "amounts": [...with sources...], "status": "ok"}
-```
-
-see `DEMO_GUIDE.md` for detailed examples.
-
-#### 3. health check
-
-**GET** `/health` or `/api/extract/health`
-
-```bash
-curl http://localhost:3000/health
-```
-
-response: `{"status": "ok", "timestamp": "..."}`
-
 ## pipeline architecture
 
 ```
-input (text/image)
+medical bill image (jpeg/png/pdf)
        ↓
 ┌─────────────────────────────┐
-│ step 1: ocr/text extraction │ → tesseract.js (if image)
+│ step 1: ocr extraction      │ → tesseract.js ocr
 │                             │ → extract numeric tokens
 │                             │ → detect currency
 └─────────────────────────────┘
@@ -270,48 +244,19 @@ internally, it can also recognize (but filters out):
 
 - discount, tax, consultation_fee, medicine_cost, lab_test_cost, room_charges, subtotal
 
-## testing examples
-
-### text input
+## testing example
 
 ```bash
-curl -X POST http://localhost:3000/api/extract \
-  -H "Content-Type: application/json" \
-  -d '{
-    "text": "APOLLO HOSPITALS\nTotal Bill: Rs 1200\nAmount Paid: Rs 1000\nBalance Due: Rs 200"
-  }'
+curl -X POST https://plum-ocr-backend.onrender.com/api/extract \
+  -F "file=@./medical-bill.png"
 ```
 
-### image input
-
-```bash
-curl -X POST http://localhost:3000/api/extract \
-  -F "file=@./test/sample-bills/images/test.png"
-```
-
-### step-by-step demo
-
-```bash
-# step 1: extract
-curl -X POST http://localhost:3000/api/extract/step1 \
-  -H "Content-Type: application/json" \
-  -d '{"text": "Total: INR 1200 | Paid: 1000 | Due: 200"}'
-
-# step 2: normalize (use raw_tokens from step 1)
-curl -X POST http://localhost:3000/api/extract/step2 \
-  -H "Content-Type: application/json" \
-  -d '{"raw_tokens": ["1200", "1000", "200"]}'
-
-# step 3: classify (use normalized_amounts from step 2)
-curl -X POST http://localhost:3000/api/extract/step3 \
-  -H "Content-Type: application/json" \
-  -d '{"normalized_amounts": [1200, 1000, 200], "raw_text": "Total: INR 1200 | Paid: 1000 | Due: 200"}'
-```
+see `SAMPLE_CURL_COMMANDS.md` and `DEMO_GUIDE.md` for more examples.
 
 ## security features
 
 - **rate limiting**: 30 requests/min (general), 10 requests/min (uploads)
-- **input validation**: text max 10k chars, files max 5mb, types: jpeg/png/pdf
+- **input validation**: files max 5mb, types: jpeg/png/pdf only
 - **secure config**: all secrets in .env, no credentials in code
 - **logging**: request ids for tracing, no sensitive data logged
 - **error handling**: proper http status codes, structured error responses
@@ -320,8 +265,6 @@ curl -X POST http://localhost:3000/api/extract/step3 \
 
 | code                  | meaning                          |
 | --------------------- | -------------------------------- |
-| `invalid_input`       | neither text nor file provided   |
-| `invalid_text`        | text validation failed           |
 | `invalid_file`        | file type/size validation failed |
 | `no_amounts_found`    | no numeric values detected       |
 | `ocr_failed`          | ocr service error                |
@@ -357,9 +300,8 @@ then update the filter in `extractController.js` to include your new type.
 
 ## performance
 
-- text input: < 500ms average response time
 - image ocr: 1-3s average response time
-- throughput: 30 req/min per ip (configurable)
+- throughput: 10 req/min per ip for uploads (configurable)
 - max file size: 5mb (configurable)
 
 ## license
@@ -374,5 +316,7 @@ built for plum insurance backend/devsecops internship evaluation
 
 **see also:**
 
+- `SAMPLE_CURL_COMMANDS.md` - ready-to-use curl commands
+- `Plum_OCR_API.postman_collection.json` - postman collection
 - `DEMO_GUIDE.md` - detailed step-by-step testing guide
 - inline code documentation in `src/services/`
