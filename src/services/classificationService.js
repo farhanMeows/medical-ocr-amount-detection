@@ -78,7 +78,8 @@ const classifyAmount = (amount, lowerText, lines, originalText) => {
     {
       type: "paid",
       patterns: [
-        /(?:amount\s*)?paid[:\s]*(?:rs\.?|inr|₹)?\s*(\d+)/i,
+        /paid\s*(?:amount|amt)?[:\s]*(?:rs\.?|inr|₹)?\s*(\d+)/i,
+        /amount\s*paid[:\s]*(?:rs\.?|inr|₹)?\s*(\d+)/i,
         /payment[:\s]*(?:rs\.?|inr|₹)?\s*(\d+)/i,
         /received[:\s]*(?:rs\.?|inr|₹)?\s*(\d+)/i,
       ],
@@ -88,9 +89,8 @@ const classifyAmount = (amount, lowerText, lines, originalText) => {
     {
       type: "due",
       patterns: [
-        /(?:balance\s*)?due[:\s]*(?:rs\.?|inr|₹)?\s*(\d+)/i,
-        /(?:amount\s*)?outstanding[:\s]*(?:rs\.?|inr|₹)?\s*(\d+)/i,
-        /balance[:\s]*(?:rs\.?|inr|₹)?\s*(\d+)/i,
+        /(?:balance|due)\s*(?:amount|amt)?[:\s]*(?:rs\.?|inr|₹)?\s*(\d+)/i,
+        /amount\s*(?:due|outstanding)[:\s]*(?:rs\.?|inr|₹)?\s*(\d+)/i,
         /pending[:\s]*(?:rs\.?|inr|₹)?\s*(\d+)/i,
       ],
       confidence: 0.9,
