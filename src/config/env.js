@@ -2,7 +2,7 @@ require("dotenv").config();
 
 const config = {
   // Server Configuration
-  port: process.env.PORT || 3000,
+  port: parseInt(process.env.PORT, 10) || 3000,
   nodeEnv: process.env.NODE_ENV || "development",
 
   // Rate Limiting

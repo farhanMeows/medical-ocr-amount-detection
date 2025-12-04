@@ -9,3 +9,9 @@ build/
 !package.json
 !package-lock.json
 !tsconfig.json
+
+# uploads folder for temp files
+uploads/
+
+# tesseract training data (downloaded automatically)
+*.traineddata
