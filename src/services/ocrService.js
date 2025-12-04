@@ -157,7 +157,7 @@ const extractNumericTokens = (text) => {
     for (const match of matches) {
       const value = match[1] || match[0];
       const cleaned = value.replace(/[₹$€£Rs\s,]/gi, "").trim();
-      
+
       if (cleaned && !seen.has(cleaned)) {
         const num = parseFloat(cleaned);
         if (!isNaN(num) && num >= 0.01 && num <= 999999) {

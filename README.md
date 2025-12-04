@@ -18,6 +18,7 @@ implements a 4-step pipeline: **ocr → normalization → classification → out
 ## features
 
 ### core functionality
+
 - tesseract.js ocr integration (free, offline)
 - automatic ocr error correction
 - context-based amount classification
@@ -26,6 +27,7 @@ implements a 4-step pipeline: **ocr → normalization → classification → out
 - step-by-step endpoints for testing
 
 ### devsecops features
+
 - rate limiting (30 req/min general, 10 req/min uploads)
 - structured logging with winston
 - input validation using zod
@@ -66,6 +68,7 @@ plum/
 ## setup
 
 ### prerequisites
+
 - node.js v16+
 - npm
 
@@ -107,6 +110,7 @@ RATE_LIMIT_MAX_REQUESTS=30
 ## api documentation
 
 ### base url
+
 ```
 local: http://localhost:3000
 production: https://plum-ocr-backend.onrender.com
@@ -121,6 +125,7 @@ production: https://plum-ocr-backend.onrender.com
 runs all 4 steps in one request.
 
 **text input:**
+
 ```bash
 curl -X POST http://localhost:3000/api/extract \
   -H "Content-Type: application/json" \
@@ -128,12 +133,14 @@ curl -X POST http://localhost:3000/api/extract \
 ```
 
 **image input:**
+
 ```bash
 curl -X POST http://localhost:3000/api/extract \
   -F "file=@./test/sample-bills/images/test.png"
 ```
 
 **success response:**
+
 ```json
 {
   "currency": "INR",
@@ -159,6 +166,7 @@ curl -X POST http://localhost:3000/api/extract \
 ```
 
 **error responses:**
+
 ```json
 // no amounts found
 {"status": "no_amounts_found", "reason": "No numeric values detected"}
@@ -172,6 +180,7 @@ curl -X POST http://localhost:3000/api/extract \
 use these to test individual pipeline stages:
 
 **step 1: ocr/text extraction**
+
 ```bash
 POST /api/extract/step1
 Body: {"text": "..."} or file upload
@@ -179,6 +188,7 @@ Response: {"raw_tokens": [...], "currency_hint": "INR", "confidence": 0.85}
 ```
 
 **step 2: normalization**
+
 ```bash
 POST /api/extract/step2
 Body: {"raw_tokens": ["l200", "1000", "200"]}
@@ -186,6 +196,7 @@ Response: {"normalized_amounts": [1200, 1000, 200], "normalization_confidence": 
 ```
 
 **step 3: classification**
+
 ```bash
 POST /api/extract/step3
 Body: {"normalized_amounts": [1200, 1000, 200], "raw_text": "..."}
@@ -193,6 +204,7 @@ Response: {"amounts": [{"type": "total_bill", "value": 1200}, ...], "confidence"
 ```
 
 **step 4: final output**
+
 ```bash
 POST /api/extract/step4
 Body: {"currency_hint": "INR", "amounts": [...], "raw_text": "..."}
@@ -243,16 +255,19 @@ input (text/image)
 ### amount types detected
 
 the service only returns these 3 types in the final output:
+
 - **total_bill** - keywords: total, amount due, grand total, bill amount
 - **paid** - keywords: paid, payment, received, amount paid
 - **due** - keywords: due, balance, remaining, outstanding
 
 internally, it can also recognize (but filters out):
+
 - discount, tax, consultation_fee, medicine_cost, lab_test_cost, room_charges, subtotal
 
 ## testing examples
 
 ### text input
+
 ```bash
 curl -X POST http://localhost:3000/api/extract \
   -H "Content-Type: application/json" \
@@ -262,12 +277,14 @@ curl -X POST http://localhost:3000/api/extract \
 ```
 
 ### image input
+
 ```bash
 curl -X POST http://localhost:3000/api/extract \
   -F "file=@./test/sample-bills/images/test.png"
 ```
 
 ### step-by-step demo
+
 ```bash
 # step 1: extract
 curl -X POST http://localhost:3000/api/extract/step1 \
@@ -295,16 +312,16 @@ curl -X POST http://localhost:3000/api/extract/step3 \
 
 ## error codes
 
-| code | meaning |
-|------|---------|
-| `invalid_input` | neither text nor file provided |
-| `invalid_text` | text validation failed |
-| `invalid_file` | file type/size validation failed |
-| `no_amounts_found` | no numeric values detected |
-| `ocr_failed` | ocr service error |
-| `rate_limit_exceeded` | too many requests |
-| `not_found` | route not found |
-| `internal_error` | unexpected server error |
+| code                  | meaning                          |
+| --------------------- | -------------------------------- |
+| `invalid_input`       | neither text nor file provided   |
+| `invalid_text`        | text validation failed           |
+| `invalid_file`        | file type/size validation failed |
+| `no_amounts_found`    | no numeric values detected       |
+| `ocr_failed`          | ocr service error                |
+| `rate_limit_exceeded` | too many requests                |
+| `not_found`           | route not found                  |
+| `internal_error`      | unexpected server error          |
 
 ## development
 
@@ -350,5 +367,6 @@ built for plum insurance backend/devsecops internship evaluation
 ---
 
 **see also:**
+
 - `DEMO_GUIDE.md` - detailed step-by-step testing guide
 - inline code documentation in `src/services/`

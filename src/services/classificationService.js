@@ -51,7 +51,7 @@ const classifyAmounts = (rawText, normalizedAmounts, requestId) => {
 // classify one amount by checking keywords around it
 const classifyAmount = (amount, lowerText, lines, originalText) => {
   const amountStr = amount.toString();
-  
+
   // classification patterns with regex that captures the number
   const patterns = [
     // Total Bill patterns
@@ -62,7 +62,7 @@ const classifyAmount = (amount, lowerText, lines, originalText) => {
         /(?:grand|net)\s*total\s*[:\-]?\s*(?:rs\.?|inr|₹)?\s*(\d+(?:\.\d{2})?)/i,
         /bill\s*amount\s*[:\-]?\s*(?:rs\.?|inr|₹)?\s*(\d+(?:\.\d{2})?)/i,
         /amount\s*payable\s*[:\-]?\s*(?:rs\.?|inr|₹)?\s*(\d+(?:\.\d{2})?)/i,
-        /total[:\-]\s*(?:rs\.?|inr|₹)?\s*(\d+(?:\.\d{2})?)/i,  // total: 214.00 or total - 214.00
+        /total[:\-]\s*(?:rs\.?|inr|₹)?\s*(\d+(?:\.\d{2})?)/i, // total: 214.00 or total - 214.00
       ],
       confidence: 0.9,
     },
@@ -166,7 +166,10 @@ const classifyAmount = (amount, lowerText, lines, originalText) => {
       if (match && match[1]) {
         const capturedAmount = parseFloat(match[1].replace(/,/g, ""));
         // check if captured number matches our amount
-        if (capturedAmount === amount && category.confidence > highestConfidence) {
+        if (
+          capturedAmount === amount &&
+          category.confidence > highestConfidence
+        ) {
           highestConfidence = category.confidence;
           bestMatch = {
             type: category.type,
