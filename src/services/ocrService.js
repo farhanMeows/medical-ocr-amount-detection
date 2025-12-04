@@ -143,35 +143,52 @@ const extractTextFromString = async (text, requestId) => {
 // pull out all numbers from text using regex patterns
 const extractNumericTokens = (text) => {
   const tokens = [];
-
-  // matches: 1200, 1,200.50, 10%, Rs 1200, ₹1200, etc
-  const patterns = [
-    /\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?%/g, // Percentages with commas: 1,200.50%
-    /\d+(?:\.\d{1,2})?%/g, // Simple percentages: 10%, 10.5%
-    /(?:Rs\.?|INR|₹)\s*\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?/gi, // Currency with commas
-    /(?:Rs\.?|INR|₹)\s*\d+(?:\.\d{1,2})?/gi, // Simple currency
-    /\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?/g, // Numbers with commas: 1,200.50
-    /\d+(?:\.\d{1,2})?/g, // Simple numbers: 1200, 1200.50
-  ];
-
   const seen = new Set();
 
-  patterns.forEach((pattern) => {
-    const matches = text.match(pattern);
-    if (matches) {
-      matches.forEach((match) => {
-        // Clean up the token (remove currency symbols for storage)
-        const cleaned = match.replace(/(?:Rs\.?|INR|₹)\s*/gi, "").trim();
-        if (cleaned && !seen.has(cleaned)) {
+  // look for amounts with context or decimals (most reliable)
+  const contextPatterns = [
+    /(?:total|paid|due|balance|amount|mrp|discount|tax|subtotal|net|gross)[:\s]*(?:Rs\.?|INR|₹|Rs)?\s*(\d{1,6}(?:\.\d{1,2})?)/gi,
+    /(?:Rs\.?|INR|₹|Rs)\s*(\d{1,6}(?:\.\d{1,2})?)/gi,
+    /\b(\d{1,6}\.\d{2})\b/g, // amounts with .XX decimal
+  ];
+
+  contextPatterns.forEach((pattern) => {
+    const matches = text.matchAll(pattern);
+    for (const match of matches) {
+      const value = match[1] || match[0];
+      const cleaned = value.replace(/[₹$€£Rs\s,]/gi, "").trim();
+      
+      if (cleaned && !seen.has(cleaned)) {
+        const num = parseFloat(cleaned);
+        if (!isNaN(num) && num >= 0.01 && num <= 999999) {
           tokens.push(cleaned);
           seen.add(cleaned);
         }
-      });
+      }
     }
   });
 
+  // fallback: get numbers that look like money amounts
+  if (tokens.length < 3) {
+    const numberPattern = /\b(\d{2,6}(?:\.\d{1,2})?)\b/g;
+    const matches = text.matchAll(numberPattern);
+    for (const match of matches) {
+      const cleaned = match[1].trim();
+      if (cleaned && !seen.has(cleaned)) {
+        const num = parseFloat(cleaned);
+        // skip dates, phone numbers, etc (too many digits)
+        if (!isNaN(num) && num >= 10 && num <= 999999 && cleaned.length <= 8) {
+          tokens.push(cleaned);
+          seen.add(cleaned);
+        }
+      }
+    }
+  }
+
   return tokens;
 };
+
+// figure out currency from symbols like ₹, $, €
 
 // figure out currency from symbols like ₹, $, €
 const detectCurrency = (text) => {
