@@ -118,7 +118,8 @@ production: https://plum-ocr-backend.onrender.com
 
 ### testing
 
-**postman collection:** import `Plum_OCR_API.postman_collection.json` into postman for ready-to-use api tests
+**postman collection:** import `Plum_OCR_API.postman_collection.json` into postman for ready-to-use api tests  
+_note: after importing, manually select a medical bill image file in the request body. sample test image available at `test/sample-bills/images/test.png`_
 
 **sample curl commands:** see `SAMPLE_CURL_COMMANDS.md` for comprehensive testing examples
 
@@ -187,8 +188,10 @@ response: `{"status": "ok", "timestamp": "..."}`
 ---
 
 ## pipeline architecture
+
 Response: {"normalized_amounts": [1200, 1000, 200], "normalization_confidence": 1.0}
-```
+
+````
 
 **step 3: classification**
 
@@ -196,7 +199,7 @@ Response: {"normalized_amounts": [1200, 1000, 200], "normalization_confidence": 
 POST /api/extract/step3
 Body: {"normalized_amounts": [1200, 1000, 200], "raw_text": "..."}
 Response: {"amounts": [{"type": "total_bill", "value": 1200}, ...], "confidence": 0.9}
-```
+````
 
 **step 4: final output**
 
@@ -206,31 +209,33 @@ Body: {"currency_hint": "INR", "amounts": [...], "raw_text": "..."}
 ## pipeline architecture
 
 ```
+
 medical bill image (jpeg/png/pdf)
-       ↓
+↓
 ┌─────────────────────────────┐
-│ step 1: ocr extraction      │ → tesseract.js ocr
-│                             │ → extract numeric tokens
-│                             │ → detect currency
+│ step 1: ocr extraction │ → tesseract.js ocr
+│ │ → extract numeric tokens
+│ │ → detect currency
 └─────────────────────────────┘
-       ↓
+↓
 ┌─────────────────────────────┐
-│ step 2: normalization       │ → fix ocr errors:
-│                             │   l→1, O→0, I→1, S→5, B→8
-│                             │ → convert to numbers
+│ step 2: normalization │ → fix ocr errors:
+│ │ l→1, O→0, I→1, S→5, B→8
+│ │ → convert to numbers
 └─────────────────────────────┘
-       ↓
+↓
 ┌─────────────────────────────┐
-│ step 3: classification      │ → match context keywords
-│                             │ → label as total/paid/due
-│                             │ → filter relevant amounts
+│ step 3: classification │ → match context keywords
+│ │ → label as total/paid/due
+│ │ → filter relevant amounts
 └─────────────────────────────┘
-       ↓
+↓
 ┌─────────────────────────────┐
-│ step 4: final output        │ → add source provenance
-│                             │ → return structured json
+│ step 4: final output │ → add source provenance
+│ │ → return structured json
 └─────────────────────────────┘
-```
+
+````
 
 ### amount types detected
 
@@ -249,7 +254,7 @@ internally, it can also recognize (but filters out):
 ```bash
 curl -X POST https://plum-ocr-backend.onrender.com/api/extract \
   -F "file=@./medical-bill.png"
-```
+````
 
 see `SAMPLE_CURL_COMMANDS.md` and `DEMO_GUIDE.md` for more examples.
 
