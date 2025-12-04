@@ -2,10 +2,7 @@ const rateLimit = require("express-rate-limit");
 const config = require("../config/env");
 const logger = require("../utils/logger");
 
-/**
- * Rate limiter for API endpoints
- * Limits requests per IP address
- */
+// limit requests per ip to prevent spam
 const apiLimiter = rateLimit({
   windowMs: config.rateLimitWindowMs, // Time window in milliseconds
   max: config.rateLimitMaxRequests, // Max requests per window
@@ -31,9 +28,7 @@ const apiLimiter = rateLimit({
   },
 });
 
-/**
- * Stricter rate limiter for file upload endpoints
- */
+// stricter limit for file uploads
 const uploadLimiter = rateLimit({
   windowMs: config.rateLimitWindowMs,
   max: Math.floor(config.rateLimitMaxRequests / 3), // More restrictive for uploads

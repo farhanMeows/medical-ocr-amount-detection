@@ -28,11 +28,7 @@ const fileInputSchema = z.object({
     ),
 });
 
-/**
- * Validate text input
- * @param {string} text - Input text to validate
- * @returns {{success: boolean, data?: any, error?: string}}
- */
+// check if text is valid and not too long
 const validateText = (text) => {
   try {
     const result = textInputSchema.parse({ text });
@@ -48,11 +44,7 @@ const validateText = (text) => {
   }
 };
 
-/**
- * Validate uploaded file
- * @param {Object} file - Multer file object
- * @returns {{success: boolean, data?: any, error?: string}}
- */
+// check if file is right type and size
 const validateFile = (file) => {
   if (!file) {
     return { success: false, error: "No file provided" };
@@ -75,12 +67,7 @@ const validateFile = (file) => {
   }
 };
 
-/**
- * Validate that at least one input (text or file) is provided
- * @param {string} text - Text input
- * @param {Object} file - File input
- * @returns {{success: boolean, error?: string}}
- */
+// make sure we got either text or file
 const validateInput = (text, file) => {
   if (!text && !file) {
     return {

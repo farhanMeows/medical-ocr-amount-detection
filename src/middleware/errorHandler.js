@@ -1,8 +1,6 @@
 const logger = require("../utils/logger");
 
-/**
- * Custom error class for application errors
- */
+// custom error with status code and error type
 class AppError extends Error {
   constructor(message, statusCode, errorCode) {
     super(message);
@@ -14,9 +12,7 @@ class AppError extends Error {
   }
 }
 
-/**
- * Global error handling middleware
- */
+// catch all errors and send proper json response
 const errorHandler = (err, req, res, next) => {
   const requestId = req.id || "unknown";
 
@@ -46,17 +42,13 @@ const errorHandler = (err, req, res, next) => {
   });
 };
 
-/**
- * Handle 404 errors
- */
+// handle routes that don't exist
 const notFoundHandler = (req, res, next) => {
   const error = new AppError("Route not found", 404, "not_found");
   next(error);
 };
 
-/**
- * Async handler wrapper to catch errors in async route handlers
- */
+// wraps async functions to catch errors automatically
 const asyncHandler = (fn) => {
   return (req, res, next) => {
     Promise.resolve(fn(req, res, next)).catch(next);

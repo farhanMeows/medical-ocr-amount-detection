@@ -1,12 +1,6 @@
 const logger = require("../utils/logger");
 
-/**
- * Classify amounts based on surrounding text context
- * @param {string} rawText - Original text from OCR
- * @param {number[]} normalizedAmounts - Normalized numeric amounts
- * @param {string} requestId - Request ID for logging
- * @returns {{amounts: Array, confidence: number}}
- */
+// figure out what type each amount is by looking at nearby words
 const classifyAmounts = (rawText, normalizedAmounts, requestId) => {
   try {
     logger.info("Starting amount classification", {
@@ -54,14 +48,7 @@ const classifyAmounts = (rawText, normalizedAmounts, requestId) => {
   }
 };
 
-/**
- * Classify a single amount based on context
- * @param {number} amount - The numeric amount
- * @param {string} lowerText - Lowercase full text
- * @param {string[]} lines - Text split into lines
- * @param {string} originalText - Original text with casing
- * @returns {{type: string, value: number, source: string, confidence: number}}
- */
+// classify one amount by checking keywords around it
 const classifyAmount = (amount, lowerText, lines, originalText) => {
   // Find the line containing this amount
   const amountStr = amount.toString();
@@ -217,12 +204,7 @@ const classifyAmount = (amount, lowerText, lines, originalText) => {
   return bestMatch;
 };
 
-/**
- * Validate classified amounts for consistency
- * E.g., Total should equal sum of components
- * @param {Array} classifiedAmounts - Array of classified amounts
- * @returns {{valid: boolean, warnings: string[]}}
- */
+// check if the amounts make sense together (total = paid + due)
 const validateClassification = (classifiedAmounts) => {
   const warnings = [];
 
@@ -232,7 +214,7 @@ const validateClassification = (classifiedAmounts) => {
   const due = classifiedAmounts.find((a) => a.type === "due");
   const subtotal = classifiedAmounts.find((a) => a.type === "subtotal");
 
-  // Validate: Total = Paid + Due (with some tolerance for rounding)
+  // check if total = paid + due (with small margin for rounding)
   if (total && paid && due) {
     const calculatedTotal = paid.value + due.value;
     const difference = Math.abs(total.value - calculatedTotal);
@@ -245,14 +227,14 @@ const validateClassification = (classifiedAmounts) => {
     }
   }
 
-  // Validate: Due should be less than or equal to Total
+  // due shouldn't be more than total
   if (total && due && due.value > total.value) {
     warnings.push(
       "Due amount is greater than total - possible classification error"
     );
   }
 
-  // Validate: Paid should be less than or equal to Total
+  // paid shouldn't be more than total
   if (total && paid && paid.value > total.value) {
     warnings.push(
       "Paid amount is greater than total - possible classification error"

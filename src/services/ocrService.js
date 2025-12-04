@@ -3,12 +3,7 @@ const config = require("../config/env");
 const logger = require("../utils/logger");
 const { AppError } = require("../middleware/errorHandler");
 
-/**
- * Extract text from image using Tesseract OCR
- * @param {Buffer} imageBuffer - Image file buffer
- * @param {string} requestId - Request ID for logging
- * @returns {Promise<{raw_tokens: string[], currency_hint: string, confidence: number}>}
- */
+// run tesseract on image buffer and extract numeric tokens
 const extractTextFromImage = async (imageBuffer, requestId) => {
   try {
     logger.info("Starting OCR text extraction with Tesseract", { requestId });
@@ -102,12 +97,7 @@ const extractTextFromImage = async (imageBuffer, requestId) => {
   }
 };
 
-/**
- * Extract text directly (when text input is provided)
- * @param {string} text - Input text
- * @param {string} requestId - Request ID for logging
- * @returns {Promise<{raw_tokens: string[], currency_hint: string, confidence: number}>}
- */
+// extract tokens from plain text input (no ocr needed)
 const extractTextFromString = async (text, requestId) => {
   try {
     logger.info("Processing text input", { requestId });
@@ -150,20 +140,11 @@ const extractTextFromString = async (text, requestId) => {
   }
 };
 
-/**
- * Extract numeric tokens from text
- * Captures: numbers, decimals, percentages, currency symbols
- * @param {string} text - Input text
- * @returns {string[]} - Array of numeric tokens
- */
+// pull out all numbers from text using regex patterns
 const extractNumericTokens = (text) => {
   const tokens = [];
 
-  // Pattern to match:
-  // - Numbers with optional decimals: 1200, 1200.50
-  // - Numbers with commas: 1,200 or 1,200.50
-  // - Percentages: 10%, 10.5%
-  // - Currency symbols followed by numbers: Rs 1200, INR 1200, ₹1200
+  // matches: 1200, 1,200.50, 10%, Rs 1200, ₹1200, etc
   const patterns = [
     /\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?%/g, // Percentages with commas: 1,200.50%
     /\d+(?:\.\d{1,2})?%/g, // Simple percentages: 10%, 10.5%
@@ -192,11 +173,7 @@ const extractNumericTokens = (text) => {
   return tokens;
 };
 
-/**
- * Detect currency from text
- * @param {string} text - Input text
- * @returns {string} - Currency code (INR, USD, etc.)
- */
+// figure out currency from symbols like ₹, $, €
 const detectCurrency = (text) => {
   const currencyPatterns = {
     INR: /\b(?:INR|Rs\.?|₹|Rupees?|Indian Rupees?)\b/i,

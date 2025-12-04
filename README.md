@@ -12,26 +12,18 @@ This service implements a complete **OCR → Normalization → Classification** 
 - Classifies amounts by context (total, paid, due, discount, etc.)
 - Returns structured JSON with full provenance
 
-## ✨ Features
+## features
 
-### Core Functionality
+- tesseract.js ocr for image text extraction
+- fixes common ocr errors automatically
+- classifies amounts by context keywords
+- supports multiple currencies (inr, usd, eur, gbp)
+- rate limiting (30 requests/min)
+- structured logging with request ids
+- input validation using zod
+- proper error handling with custom error classes
 
-- ✅ Google Cloud Vision OCR integration
-- ✅ Intelligent OCR error correction (l→1, O→0, etc.)
-- ✅ Context-based amount classification
-- ✅ Multi-currency support (INR, USD, EUR, GBP)
-- ✅ Confidence scoring at each pipeline stage
-
-### DevSecOps Features
-
-- 🔒 Secure environment variable management
-- 🚦 Rate limiting (30 req/min per IP)
-- 📝 Structured logging with Winston
-- 🛡️ Input validation with Zod
-- ⚡ Error handling with custom error classes
-- 🔍 Request tracing with unique IDs
-
-## 📁 Project Structure
+## project structure
 
 \`\`\`
 plum-ocr-backend/
@@ -62,15 +54,13 @@ plum-ocr-backend/
 └── README.md
 \`\`\`
 
-## 🚀 Setup Instructions
+## setup
 
-### Prerequisites
+### prerequisites
 
-- **Node.js** v16+ and npm
-- **Google Cloud Account** with Vision API enabled
-- Service account key for Google Cloud Vision
+- node.js v16+ and npm
 
-### 1. Clone the Repository
+### clone and install
 
 \`\`\`bash
 git clone https://github.com/farhanMeows/medical-ocr-amount-detection.git

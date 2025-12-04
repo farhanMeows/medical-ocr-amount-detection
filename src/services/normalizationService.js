@@ -1,11 +1,6 @@
 const logger = require("../utils/logger");
 
-/**
- * Normalize numeric tokens by fixing common OCR errors
- * @param {string[]} rawTokens - Raw tokens from OCR
- * @param {string} requestId - Request ID for logging
- * @returns {{normalized_amounts: number[], normalization_confidence: number}}
- */
+// fix common ocr mistakes in numbers (l->1, O->0, etc)
 const normalizeAmounts = (rawTokens, requestId) => {
   try {
     logger.info("Starting normalization", {
@@ -58,11 +53,7 @@ const normalizeAmounts = (rawTokens, requestId) => {
   }
 };
 
-/**
- * Normalize a single token by fixing OCR errors
- * @param {string} token - Raw token
- * @returns {number|null} - Normalized number or null if invalid
- */
+// clean up a single token and convert to number
 const normalizeToken = (token) => {
   let normalized = token;
 
@@ -96,7 +87,7 @@ const normalizeToken = (token) => {
   // Remove any remaining non-numeric characters except decimal point and comma
   normalized = normalized.replace(/[^0-9.,]/g, "");
 
-  // Handle commas (Indian/US format: 1,200 or 1,200.50)
+  // strip commas from numbers like 1,200 or 1,200.50
   normalized = normalized.replace(/,/g, "");
 
   // Validate the result is a valid number

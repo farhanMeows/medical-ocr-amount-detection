@@ -18,10 +18,7 @@ const {
 const logger = require("../utils/logger");
 const { AppError } = require("../middleware/errorHandler");
 
-/**
- * STEP 1: OCR / Text Extraction Only
- * Extract raw tokens from text or image
- */
+// step 1: pull out numbers from text or image
 const step1_extractRawTokens = async (req, res) => {
   const requestId = req.id;
 
@@ -89,10 +86,7 @@ const step1_extractRawTokens = async (req, res) => {
   }
 };
 
-/**
- * STEP 2: Normalization
- * Requires raw_tokens from Step 1
- */
+// step 2: fix ocr errors in the numbers
 const step2_normalizeAmounts = async (req, res) => {
   const requestId = req.id;
 
@@ -140,10 +134,7 @@ const step2_normalizeAmounts = async (req, res) => {
   }
 };
 
-/**
- * STEP 3: Classification
- * Requires normalized_amounts and raw_text from previous steps
- */
+// step 3: figure out which amounts are total/paid/due
 const step3_classifyAmounts = async (req, res) => {
   const requestId = req.id;
 
@@ -201,10 +192,7 @@ const step3_classifyAmounts = async (req, res) => {
   }
 };
 
-/**
- * STEP 4: Final Output
- * Requires currency_hint, amounts (classified), and raw_text
- */
+// step 4: package everything with sources
 const step4_finalOutput = async (req, res) => {
   const requestId = req.id;
 
@@ -252,7 +240,9 @@ const step4_finalOutput = async (req, res) => {
       return {
         type: amount.type,
         value: amount.value,
-        source: sourceLine ? `text: '${sourceLine}'` : "text: (context not found)",
+        source: sourceLine
+          ? `text: '${sourceLine}'`
+          : "text: (context not found)",
       };
     });
 
@@ -272,10 +262,7 @@ const step4_finalOutput = async (req, res) => {
   }
 };
 
-/**
- * Main controller for OCR extraction and processing pipeline
- * Handles both text and image inputs
- */
+// main pipeline: runs all 4 steps together
 const extractAndProcess = async (req, res) => {
   const requestId = req.id;
 
@@ -296,7 +283,7 @@ const extractAndProcess = async (req, res) => {
       throw new AppError(inputValidation.error, 400, "invalid_input");
     }
 
-    // STEP 1: OCR / Text Extraction
+    // step 1: extract text and numbers
     let ocrResult;
 
     if (file) {
@@ -335,7 +322,7 @@ const extractAndProcess = async (req, res) => {
       });
     }
 
-    // STEP 2: Normalization
+    // step 2: fix ocr errors
     const normalizationResult = normalizeAmounts(
       ocrResult.raw_tokens,
       requestId
@@ -352,7 +339,7 @@ const extractAndProcess = async (req, res) => {
       });
     }
 
-    // STEP 3: Context Classification
+    // step 3: classify amounts
     const classificationResult = classifyAmounts(
       ocrResult.raw_text,
       normalizationResult.normalized_amounts,
@@ -370,7 +357,7 @@ const extractAndProcess = async (req, res) => {
       });
     }
 
-    // STEP 4: Final Output - Filter only total_bill, paid, and due
+    // step 4: filter to only show total_bill, paid, due
     const allowedTypes = ["total_bill", "paid", "due"];
     const filteredAmounts = classificationResult.amounts
       .filter((amount) => allowedTypes.includes(amount.type))
@@ -412,9 +399,7 @@ const extractAndProcess = async (req, res) => {
   }
 };
 
-/**
- * Health check endpoint
- */
+// simple health check endpoint
 const healthCheck = (req, res) => {
   res.status(200).json({
     status: "ok",

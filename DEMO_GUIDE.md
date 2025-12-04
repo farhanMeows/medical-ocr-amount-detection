@@ -5,6 +5,7 @@ This guide shows how to demonstrate each step of the OCR pipeline individually t
 ## Overview
 
 The pipeline is broken into 4 independent steps:
+
 1. **Step 1**: OCR / Text Extraction
 2. **Step 2**: Normalization
 3. **Step 3**: Classification
@@ -25,6 +26,7 @@ curl -X POST http://localhost:3000/api/extract/step1 \
 ```
 
 **Expected Response**:
+
 ```json
 {
   "raw_tokens": ["1200", "1000", "200", "10%"],
@@ -41,6 +43,7 @@ curl -X POST http://localhost:3000/api/extract/step1 \
 ```
 
 **Expected Response** (OCR may have errors):
+
 ```json
 {
   "raw_tokens": ["l200", "1000", "200"],
@@ -58,6 +61,7 @@ curl -X POST http://localhost:3000/api/extract/step1 \
 ```
 
 **Response**:
+
 ```json
 {
   "status": "no_amounts_found",
@@ -84,6 +88,7 @@ curl -X POST http://localhost:3000/api/extract/step2 \
 ```
 
 **Expected Response**:
+
 ```json
 {
   "normalized_amounts": [1200, 1000, 200],
@@ -113,14 +118,15 @@ curl -X POST http://localhost:3000/api/extract/step3 \
 ```
 
 **Expected Response**:
+
 ```json
 {
   "amounts": [
-    {"type": "total_bill", "value": 1200},
-    {"type": "paid", "value": 1000},
-    {"type": "due", "value": 200}
+    { "type": "total_bill", "value": 1200 },
+    { "type": "paid", "value": 1000 },
+    { "type": "due", "value": 200 }
   ],
-  "confidence": 0.90
+  "confidence": 0.9
 }
 ```
 
@@ -149,13 +155,18 @@ curl -X POST http://localhost:3000/api/extract/step4 \
 ```
 
 **Expected Response**:
+
 ```json
 {
   "currency": "INR",
   "amounts": [
-    {"type": "total_bill", "value": 1200, "source": "text: 'Total: INR 1200'"},
-    {"type": "paid", "value": 1000, "source": "text: 'Paid: 1000'"},
-    {"type": "due", "value": 200, "source": "text: 'Due: 200'"}
+    {
+      "type": "total_bill",
+      "value": 1200,
+      "source": "text: 'Total: INR 1200'"
+    },
+    { "type": "paid", "value": 1000, "source": "text: 'Paid: 1000'" },
+    { "type": "due", "value": 200, "source": "text: 'Due: 200'" }
   ],
   "status": "ok"
 }
@@ -180,9 +191,11 @@ curl -X POST http://localhost:3000/api/extract \
 ## Postman Collection for Interviewer
 
 ### Step 1: Extract Raw Tokens
+
 - **Method**: POST
 - **URL**: `http://localhost:3000/api/extract/step1`
 - **Body** (raw JSON):
+
 ```json
 {
   "text": "Total: INR 1200 | Paid: 1000 | Due: 200 | Discount: 10%"
@@ -190,9 +203,11 @@ curl -X POST http://localhost:3000/api/extract \
 ```
 
 ### Step 2: Normalize Amounts
+
 - **Method**: POST
 - **URL**: `http://localhost:3000/api/extract/step2`
 - **Body** (raw JSON):
+
 ```json
 {
   "raw_tokens": ["l200", "1000", "200"]
@@ -200,9 +215,11 @@ curl -X POST http://localhost:3000/api/extract \
 ```
 
 ### Step 3: Classify Amounts
+
 - **Method**: POST
 - **URL**: `http://localhost:3000/api/extract/step3`
 - **Body** (raw JSON):
+
 ```json
 {
   "normalized_amounts": [1200, 1000, 200],
@@ -211,16 +228,18 @@ curl -X POST http://localhost:3000/api/extract \
 ```
 
 ### Step 4: Final Output
+
 - **Method**: POST
 - **URL**: `http://localhost:3000/api/extract/step4`
 - **Body** (raw JSON):
+
 ```json
 {
   "currency_hint": "INR",
   "amounts": [
-    {"type": "total_bill", "value": 1200},
-    {"type": "paid", "value": 1000},
-    {"type": "due", "value": 200}
+    { "type": "total_bill", "value": 1200 },
+    { "type": "paid", "value": 1000 },
+    { "type": "due", "value": 200 }
   ],
   "raw_text": "Total: INR 1200 | Paid: 1000 | Due: 200"
 }
@@ -251,10 +270,9 @@ Step 1: Extract          Step 2: Normalize       Step 3: Classify       Step 4: 
 ```
 
 This demonstrates your understanding of:
+
 - **Separation of Concerns**
 - **Pipeline Architecture**
 - **Error Handling**
 - **Data Transformation**
 - **API Design**
-
-Good luck with your interview! 🚀

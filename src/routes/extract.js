@@ -36,10 +36,7 @@ const upload = multer({
   },
 });
 
-/**
- * POST /api/extract
- * Main endpoint - Full pipeline (all 4 steps combined)
- */
+// main endpoint - runs full pipeline
 router.post(
   "/",
   uploadLimiter,
@@ -47,11 +44,7 @@ router.post(
   asyncHandler(extractAndProcess)
 );
 
-/**
- * POST /api/extract/step1
- * Step 1: OCR / Text Extraction
- * Extract raw tokens from text or image
- */
+// step 1: extract numbers from text or image
 router.post(
   "/step1",
   uploadLimiter,
@@ -59,43 +52,16 @@ router.post(
   asyncHandler(step1_extractRawTokens)
 );
 
-/**
- * POST /api/extract/step2
- * Step 2: Normalization
- * Body: { "raw_tokens": ["1200", "1000", "200"] }
- */
-router.post(
-  "/step2",
-  apiLimiter,
-  asyncHandler(step2_normalizeAmounts)
-);
+// step 2: fix ocr errors in numbers
+router.post("/step2", apiLimiter, asyncHandler(step2_normalizeAmounts));
 
-/**
- * POST /api/extract/step3
- * Step 3: Classification
- * Body: { "normalized_amounts": [1200, 1000, 200], "raw_text": "..." }
- */
-router.post(
-  "/step3",
-  apiLimiter,
-  asyncHandler(step3_classifyAmounts)
-);
+// step 3: classify amounts by context
+router.post("/step3", apiLimiter, asyncHandler(step3_classifyAmounts));
 
-/**
- * POST /api/extract/step4
- * Step 4: Final Output
- * Body: { "currency_hint": "INR", "amounts": [...], "raw_text": "..." }
- */
-router.post(
-  "/step4",
-  apiLimiter,
-  asyncHandler(step4_finalOutput)
-);
+// step 4: add sources and package final output
+router.post("/step4", apiLimiter, asyncHandler(step4_finalOutput));
 
-/**
- * GET /api/extract/health
- * Health check endpoint
- */
+// health check
 router.get("/health", healthCheck);
 
 module.exports = router;
