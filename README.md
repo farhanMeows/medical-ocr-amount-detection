@@ -116,6 +116,12 @@ local: http://localhost:3000
 production: https://plum-ocr-backend.onrender.com
 ```
 
+### testing
+
+**postman collection:** import `Plum_OCR_API.postman_collection.json` into postman for ready-to-use api tests
+
+**sample curl commands:** see `SAMPLE_CURL_COMMANDS.md` for comprehensive testing examples
+
 ### endpoints
 
 #### 1. full pipeline (main endpoint)
