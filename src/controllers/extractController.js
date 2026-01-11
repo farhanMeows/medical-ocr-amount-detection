@@ -75,6 +75,7 @@ const step1_extractRawTokens = async (req, res) => {
       raw_tokens: ocrResult.raw_tokens,
       currency_hint: ocrResult.currency_hint,
       confidence: ocrResult.confidence,
+      raw_text: ocrResult.raw_text,
     };
 
     logger.info("Step 1: Raw token extraction complete", { requestId });

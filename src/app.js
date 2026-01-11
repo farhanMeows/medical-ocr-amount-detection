@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const crypto = require("crypto");
+const path = require("path");
 const logger = require("./utils/logger");
 const { errorHandler, notFoundHandler } = require("./middleware/errorHandler");
 const { apiLimiter } = require("./middleware/rateLimiter");
@@ -29,6 +30,9 @@ app.use((req, res, next) => {
 app.use(cors()); // Enable CORS
 app.use(express.json({ limit: "1mb" })); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true, limit: "1mb" })); // Parse URL-encoded bodies
+
+// Serve static files from public directory
+app.use(express.static(path.join(__dirname, "../public")));
 
 // Apply rate limiting to all routes
 app.use(apiLimiter);

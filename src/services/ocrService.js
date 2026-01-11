@@ -113,6 +113,7 @@ const extractTextFromString = async (text, requestId) => {
       return {
         status: "no_amounts_found",
         reason: "No numeric values found in the provided text",
+        raw_text: text,
       };
     }
 

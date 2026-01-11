@@ -12,6 +12,7 @@ const server = app.listen(PORT, () => {
     googleCredsConfigured: !!config.googleCredentials,
   });
   console.log(`\n🚀 Server running on http://localhost:${PORT}`);
+  console.log(`🌐 Frontend: http://localhost:${PORT}`);
   console.log(`📋 Health check: http://localhost:${PORT}/health`);
   console.log(`🔍 Extract API: http://localhost:${PORT}/api/extract\n`);
 });
