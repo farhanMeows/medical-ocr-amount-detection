@@ -17,9 +17,9 @@ const apiLimiter = rateLimit({
   legacyHeaders: false, // Disable `X-RateLimit-*` headers
   keyGenerator: (req) => {
     // Use X-Forwarded-For header if available (for proxies like Render), otherwise use IP
-    return req.headers['x-forwarded-for'] ? 
-      req.headers['x-forwarded-for'].split(',')[0].trim() : 
-      req.ip;
+    return req.headers["x-forwarded-for"]
+      ? req.headers["x-forwarded-for"].split(",")[0].trim()
+      : req.ip;
   },
   handler: (req, res, next, options) => {
     logger.warn("Rate limit exceeded", {

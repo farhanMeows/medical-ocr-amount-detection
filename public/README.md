@@ -4,11 +4,13 @@ A simple, clean web interface for the Medical Bill OCR Amount Detection service.
 
 ## Features
 
-- **Dual Input Methods**: 
+- **Dual Input Methods**:
+
   - Text input: Paste bill text directly
   - Image upload: Upload JPEG, PNG, or PDF files
 
 - **Live Processing Pipeline**: Watch each step of the extraction process:
+
   1. Raw token extraction from text/image
   2. Amount normalization (fixing OCR errors)
   3. Amount classification (total, paid, due)
@@ -19,16 +21,19 @@ A simple, clean web interface for the Medical Bill OCR Amount Detection service.
 ## Usage
 
 1. Start the backend server:
+
    ```bash
    npm start
    ```
 
 2. Open your browser and navigate to:
+
    ```
    http://localhost:3000
    ```
 
 3. Choose your input method:
+
    - **Text Tab**: Paste bill text containing amounts
    - **Image Tab**: Upload or drag-and-drop a bill image
 
@@ -37,6 +42,7 @@ A simple, clean web interface for the Medical Bill OCR Amount Detection service.
 ## How It Works
 
 The frontend makes sequential API calls to each step of the pipeline:
+
 - `POST /api/extract/step1` - Extract raw tokens
 - `POST /api/extract/step2` - Normalize amounts
 - `POST /api/extract/step3` - Classify amounts

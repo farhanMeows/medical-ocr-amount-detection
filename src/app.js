@@ -10,7 +10,7 @@ const extractRoutes = require("./routes/extract");
 const app = express();
 
 // Trust proxy for Render (and other reverse proxies)
-app.set('trust proxy', 1);
+app.set("trust proxy", 1);
 
 // Generate unique request ID for each request
 app.use((req, res, next) => {
