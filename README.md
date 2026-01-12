@@ -119,7 +119,7 @@ production: https://plum-ocr-backend.onrender.com
 ### testing
 
 **postman collection:** import `Plum_OCR_API.postman_collection.json` into postman for ready-to-use api tests  
-_note: after importing, manually select a medical bill image file in the request body. sample test image available at `test/sample-bills/images/test.png`_
+_note: after importing, manually select a medical bill image file in the request body. bundled sample bill lives at [test/sample-bills/images/Sample_Bill.jpg](test/sample-bills/images/Sample_Bill.jpg), or download it from your running server via `http://localhost:3000/sample-bills/images/Sample_Bill.jpg`_
 
 **sample curl commands:** see `SAMPLE_CURL_COMMANDS.md` for comprehensive testing examples
 
@@ -138,7 +138,7 @@ upload medical bill image for ocr processing and amount extraction. runs full 4-
 
 ```bash
 curl -X POST https://plum-ocr-backend.onrender.com/api/extract \
-  -F "file=@./test/sample-bills/images/test.png"
+  -F "file=@./test/sample-bills/images/Sample_Bill.jpg"
 ```
 
 **success response:**

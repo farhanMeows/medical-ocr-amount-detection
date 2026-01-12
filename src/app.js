@@ -37,6 +37,15 @@ app.use(express.urlencoded({ extended: true, limit: "1mb" })); // Parse URL-enco
 // Serve static files from public directory
 app.use(express.static(path.join(__dirname, "../public")));
 
+// Expose sample bills so users can download test assets
+app.use(
+  "/sample-bills",
+  express.static(path.join(__dirname, "../test/sample-bills"), {
+    index: false,
+    maxAge: "1d",
+  })
+);
+
 // Apply rate limiting to all routes
 app.use(apiLimiter);
 

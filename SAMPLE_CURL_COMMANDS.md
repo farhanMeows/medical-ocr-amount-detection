@@ -28,11 +28,11 @@ curl -X POST https://plum-ocr-backend.onrender.com/api/extract \
   -F "file=@/path/to/bill.png"
 ```
 
-**Example with test file (if you have the repo cloned):**
+**Example with bundled Sample_Bill (if you have the repo cloned):**
 
 ```bash
 curl -X POST https://plum-ocr-backend.onrender.com/api/extract \
-  -F "file=@./test/sample-bills/images/test.png"
+  -F "file=@./test/sample-bills/images/Sample_Bill.jpg"
 ```
 
 **Expected Response:**
@@ -172,7 +172,7 @@ Run multiple requests quickly to test rate limiting (10 req/min for image upload
 for i in {1..12}; do
   echo "Request $i:"
   curl -X POST https://plum-ocr-backend.onrender.com/api/extract \
-    -F "file=@./test/sample-bills/images/test.png"
+    -F "file=@./test/sample-bills/images/Sample_Bill.jpg"
   echo ""
   sleep 1
 done

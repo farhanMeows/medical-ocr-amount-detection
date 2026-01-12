@@ -155,6 +155,45 @@
         display: block;
       }
 
+      .sample-download {
+        margin-top: 16px;
+        padding: 18px;
+        border-radius: 10px;
+        background: #f0f4ff;
+        border: 1px dashed #9aa8ff;
+        color: #263057;
+      }
+
+      .sample-download-title {
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+
+      .sample-download p {
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+        color: #4d577a;
+      }
+
+      .download-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        border-radius: 999px;
+        background: #667eea;
+        color: white;
+        font-weight: 600;
+        text-decoration: none;
+        width: fit-content;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      .download-link:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.35);
+      }
+
       .btn {
         padding: 14px 32px;
         background: #007bff;
@@ -414,6 +453,18 @@
               <div class="file-info" id="fileInfo"></div>
               <div class="image-preview" id="imagePreview">
                 <img id="previewImg" alt="Preview" />
+              </div>
+              <div class="sample-download">
+                <div class="sample-download-title">Need a sample bill?</div>
+                <p>Download <strong>Sample_Bill.jpg</strong> and try the pipeline end-to-end without hunting for your own file.</p>
+                <a
+                  class="download-link"
+                  href="/sample-bills/images/Sample_Bill.jpg"
+                  download="Sample_Bill.jpg"
+                >
+                  <span aria-hidden="true">⬇️</span>
+                  <span>Download Sample_Bill.jpg</span>
+                </a>
               </div>
             </div>
           </div>
