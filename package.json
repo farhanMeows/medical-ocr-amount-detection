@@ -14,7 +14,8 @@
     "medical-bills",
     "google-cloud-vision",
     "express",
-    "backend"
+    "backend",
+    "tesseract"
   ],
   "author": "Plum Internship Candidate",
   "license": "ISC",
